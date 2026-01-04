@@ -1,0 +1,45 @@
+# --- Secrets & env ---
+.env
+.env.*.local
+.env.local
+.envrc
+
+# --- OS/Editor Junk ---
+.DS_Store
+**/.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.orig
+
+# --- Node & Package Managers ---
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Build / Output / Caches ---
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+**/.next/
+**/.vercel/
+**/.netlify/
+**/.nuxt/
+**/.svelte-kit/
+**/.angular/
+**/.vite/
+**/.parcel-cache/
+**/.cache/
+**/.turbo/
+.eslintcache
+.stylelintcache
+**/bundle.js
+
