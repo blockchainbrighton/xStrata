@@ -1,28 +1,9 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
-
-// Simple .env parser
-try {
-  const envPath = path.resolve(process.cwd(), '.env');
-  if (fs.existsSync(envPath)) {
-    const envConfig = fs.readFileSync(envPath, 'utf8');
-    envConfig.split('\n').forEach(line => {
-      const match = line.match(/^([^=]+)=(.*)$/);
-      if (match) {
-        process.env[match[1].trim()] = match[2].trim();
-      }
-    });
-    console.log("Loaded .env configuration.");
-  }
-} catch (e) {
-  console.warn("Could not load .env file:", e);
-}
 
 const PORT = 8001;
 const PUBLIC_URL = 'http://localhost:' + PORT;
-const HIRO_API_KEY = process.env.HIRO_API_KEY;
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -43,56 +24,66 @@ const server = http.createServer((req, res) => {
 
   console.log(`${logPrefix} IN  ${req.method} ${req.url}`);
 
-  // HIRO PROXY HANDLER (Mainnet & Testnet)
-  if (req.url.startsWith('/hiro-proxy-mainnet/') || req.url.startsWith('/hiro-proxy-testnet/')) {
-    if (!HIRO_API_KEY) {
-        console.error(`${logPrefix} PROXY ERROR: Missing HIRO_API_KEY`);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Server misconfiguration: Missing API Key' }));
+  // --- Secure Hiro API Proxy ---
+  if (req.url.startsWith('/hiro-proxy/')) {
+    // Expected format: /hiro-proxy/network/path...
+    // e.g. /hiro-proxy/mainnet/v2/info
+    
+    const parts = req.url.split('/');
+    // parts[0] = empty (before first slash)
+    // parts[1] = 'hiro-proxy'
+    // parts[2] = network ('mainnet' or 'testnet')
+    // parts[3+] = rest of path
+
+    if (parts.length < 3) {
+        res.writeHead(400);
+        res.end('Bad Proxy Request: Missing network');
         return;
     }
 
-    const isTestnet = req.url.startsWith('/hiro-proxy-testnet/');
-    const targetHost = isTestnet ? 'api.testnet.hiro.so' : 'api.hiro.so';
-    const prefixToRemove = isTestnet ? '/hiro-proxy-testnet' : '/hiro-proxy-mainnet';
-    const targetPath = req.url.replace(prefixToRemove, '');
+    const network = parts[2];
+    const validNetworks = ['mainnet', 'testnet'];
+    
+    if (!validNetworks.includes(network)) {
+         res.writeHead(400);
+         res.end(`Bad Proxy Request: Invalid network '${network}'`);
+         return;
+    }
 
-    const options = {
-      hostname: targetHost,
-      port: 443,
-      path: targetPath,
+    // Reconstruct the target path (everything after the network)
+    const targetPath = '/' + parts.slice(3).join('/');
+    const HIRO_API_URL = `https://api.${network}.hiro.so${targetPath}`;
+    const HIRO_API_KEY = 'fed2e6f5e2f76c4b2167c5104a70262c';
+
+    console.log(`${logPrefix} PROXY -> ${HIRO_API_URL}`);
+
+    const proxyReq = require('https').request(HIRO_API_URL, {
       method: req.method,
       headers: {
         ...req.headers,
-        'host': targetHost, // Vital for SNI
+        'host': `api.${network}.hiro.so`,
         'x-hiro-api-key': HIRO_API_KEY
       }
-    };
-
-    // Remove headers that might confuse the upstream
-    delete options.headers['host'];
-    delete options.headers['connection'];
-    delete options.headers['accept-encoding']; 
-
-    console.log(`${logPrefix} PROXY -> https://${targetHost}${targetPath}`);
-
-    const proxyReq = https.request(options, (proxyRes) => {
-      res.writeHead(proxyRes.statusCode, proxyRes.headers);
-      proxyRes.pipe(res, { end: true });
+    }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, {
+        ...proxyRes.headers,
+        'access-control-allow-origin': '*' // Ensure CORS for local frontend
+      });
+      proxyRes.pipe(res);
     });
 
-    proxyReq.on('error', (e) => {
-      console.error(`${logPrefix} PROXY FAILURE: ${e.message}`);
+    proxyReq.on('error', (err) => {
+      console.error(`${logPrefix} PROXY ERROR:`, err);
       res.writeHead(503, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Upstream unavailable', details: e.message }));
+      res.end(JSON.stringify({ error: 'Service Unavailable', details: err.message }));
     });
 
-    if (req.method === 'POST' || req.method === 'PUT') {
-        req.pipe(proxyReq, { end: true });
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      req.pipe(proxyReq);
     } else {
-        proxyReq.end();
+      proxyReq.end();
     }
-    return;
+    return; // Stop processing, don't serve files
   }
 
   // Handle errors on the response stream to prevent crashes

@@ -178,10 +178,10 @@
                 Fee per transaction (microSTX)
                 <input type="number" id="fee-per-tx" value="500000" min="0" step="1000" style="width: 100%; margin: 6px 0;">
             </label>
-            <label style="display:flex; gap:8px; align-items:center; white-space:nowrap; margin-top: 18px;">
-                <input type="checkbox" id="toggle-safe-mode" style="width:auto; margin:0;">
-                Safe mode (enable for manual flow)
-            </label>
+                            <label>
+                                <input type="checkbox" id="toggle-safe-mode"> 
+                                Enable Safe Mode (Wait for confirmations - slower, requires manual wallet approval per tx)
+                            </label>
             <button id="btn-fetch-fee-rate" style="background:#444; padding:8px 10px; font-size:12px; margin-top: 18px;">Fetch Fee Rates</button>
         </div>
         <div id="fee-estimates" class="status info"></div>

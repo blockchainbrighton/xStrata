@@ -118,6 +118,12 @@ ${p}`,this.message=c,this.code=t.code,this.parameter=t.parameter?t.parameter:voi
 
 (define-read-only (get-pending-chunk (hash (buff 32)) (index uint))
     (map-get? Chunks { context: hash, index: index }))
+
+(define-private (add-chunk-from-batch (entry {hash: (buff 32), index: uint, data: (buff 20000)}))
+    (add-chunk (get hash entry) (get index entry) (get data entry)))
+
+(define-public (add-chunk-batch (entries (list 10 {hash: (buff 32), index: uint, data: (buff 20000)})))
+    (ok (map add-chunk-from-batch entries)))
 `;let currentChunks=[],currentRoot=null,currentMimeType="application/octet-stream",currentFileObjectUrl=null,lastSelectedFile=null,lastSealedRoot=null;renderMintGuidance();renderFeeEstimates();function setMintFilePanelVisible(e){const t=document.getElementById("mint-file-panel");t&&t.classList.toggle("hidden",!e)}function clearMintFilePreview(){const e=document.getElementById("mint-file-preview");e&&(e.innerHTML="");const t=document.getElementById("mint-file-stats");if(t&&(t.innerHTML=""),setMintFilePanelVisible(!1),currentFileObjectUrl){try{URL.revokeObjectURL(currentFileObjectUrl)}catch{}currentFileObjectUrl=null}}function computeMintByteEstimate({missingIndices:e=null,includeBegin:t=!0}={}){const c=t?estimateTxBytes.begin:0,p=estimateTxBytes.seal,d=(e?e.map(F=>currentChunks[F]).filter(Boolean):currentChunks).reduce((F,j)=>F+estimateTxBytes.addChunk(j.length),0);return{bytesBegin:c,bytesUploads:d,bytesSeal:p,bytesTotal:c+d+p}}async function checkPendingStatus(e){if(!userSession.isUserSignedIn())return null;const{address:t,name:c}=getContractDetails(),p=userSession.loadUserData().profile.stxAddress.testnet||userSession.loadUserData().profile.stxAddress.mainnet;try{const A=await callReadOnlyFunctionWithRetry({contractAddress:t,contractName:c,functionName:"get-pending-inscription",functionArgs:[bufferCV(e),standardPrincipalCV(p)],senderAddress:p,network});return cvToValue(A)}catch(A){return console.error("Error checking pending status:",A),null}}function renderMintFileStats(e=null){var fe;const t=document.getElementById("mint-file-stats");if(!t)return;if(!(currentFileMeta!=null&&currentFileMeta.name)||!currentChunks.length||!currentRoot){t.innerHTML="";return}const c=currentChunks.length;(fe=currentChunks[currentChunks.length-1])==null||fe.length;const p=currentChunks.length>0?Math.round(currentChunks.reduce((de,we)=>de+we.length,0)/currentChunks.length):0,{total:A}=estimateTxCounts(c,e?0:null),d=getFeePerTxMicroStx(),F=d*A,j=`0x${bufToHex(currentRoot)}`,V=computeMintByteEstimate({includeBegin:!e}).bytesTotal,J=de=>!Number.isFinite(de)||de<=0?null:Math.ceil(V*de),z=J(networkFeeRateMicroPerByte),X=J(mainnetFeeRateMicroPerByte),re=(()=>{var de,we,Se,me;try{const Ae=userSession.loadUserData();return((we=(de=Ae==null?void 0:Ae.profile)==null?void 0:de.stxAddress)==null?void 0:we.testnet)||((me=(Se=Ae==null?void 0:Ae.profile)==null?void 0:Se.stxAddress)==null?void 0:me.mainnet)||null}catch{return null}})();let te="";e&&(te='<div class="k" style="color:blue">Status</div><div class="v" style="color:blue; font-weight:bold;">Pending Inscription Found</div>'),t.innerHTML=`
         <div class="k">File</div><div class="v">${currentFileMeta.name}</div>
         <div class="k">MIME</div><div class="v">${currentMimeType||"unknown"}</div>
@@ -184,7 +190,109 @@ ${p}`,this.message=c,this.code=t.code,this.parameter=t.parameter?t.parameter:voi
                 <h3 style="margin-top:0">🎉 Inscription #${d} Complete!</h3>
                 <button onclick="document.getElementById('manifest-id-input').value = ${d}; showPage('play');" style="background:#28a745; color:white; border:none; padding:10px; cursor:pointer;">View Inscription</button>
             </div>
-        `,inscriptionMetaCache.clear(),viewerGalleryPage=Math.floor(d/VIEWER_PAGE_SIZE),renderGalleryPage(viewerGalleryPage)):t.innerHTML+='<div style="color:red">Sealed, but could not parse ID. Check explorer.</div>'}async function startChunkUploads(e,t,c=null){journeyLog(`Starting sequential chunk uploads for Hash: ${bufToHex(e)}`);const{address:p,name:A}=getContractDetails(),d=c||Array.from({length:currentChunks.length},(j,V)=>V),F=d.length;let j=0;while(j<d.length){const V=d[j],J=currentChunks[V];journeyLog(`Preparing Chunk ${V}: size=${J.length}, hash=${bufToHex(e)}`);let z=document.getElementById(`chunk-status-${V}`);if(!z){z=document.createElement("p"),z.id=`chunk-status-${V}`,z.style.margin="5px 0",z.style.paddingLeft="20px",t.appendChild(z)}z.innerText=`Uploading Part ${V} (${j+1}/${F})...`,z.style.color="black";try{await new Promise(te=>setTimeout(te,3e3));const X=await openContractCallWrapper({contractAddress:p,contractName:A,functionName:"add-chunk",functionArgs:[bufferCV(new Uint8Array(e)),uintCV(V),bufferCV(new Uint8Array(J))],network,userSession,postConditionMode:PostConditionMode.Allow,anchorMode:AnchorMode.Any}),re=(X==null?void 0:X.txId)||null;if(re){journeyLog(`Chunk ${V} TX Sent: ${re}`),z.innerText=`Part ${V} - Sent (${re.slice(0,10)}…)`;if(isSafeModeEnabled())await waitForTransactionSuccess(re);z.innerText=`Part ${V} - Confirmed ✓`,z.style.color="#28a745",j++}else throw new Error("No TX ID returned")}catch(X){journeyLog(`Chunk ${V} Error`,{error:X.message}),z.innerText=`Part ${V} - Failed ✕`,z.style.color="#dc3545";const re=document.createElement("button");re.innerText=`Retry / Resume Part ${V}`,re.style.backgroundColor="#ffc107",re.style.border="none",re.style.padding="5px 10px",re.style.cursor="pointer",re.style.marginLeft="10px",re.style.borderRadius="4px",z.appendChild(re),await new Promise(te=>{re.onclick=()=>{re.remove(),z.innerText=`Retrying Part ${V}...`,z.style.color="blue",te()}})}}}function playerLog(e){journeyLog(`Player: ${e}`);const t=document.createElement("div");t.innerText=`> ${e}`,document.getElementById("player-log").appendChild(t)}async function fetchInscriptionData(e){const{address:t,name:c}=getContractDetails();journeyLog(`Fetching inscription data for ID: ${e} from ${t}.${c}`);try{const p=await callReadOnlyFunction({contractAddress:t,contractHash:"",contractName:c,functionName:"get-inscription",functionArgs:[uintCV(e)],senderAddress:t,network}),A=cvToValue(p);if(!A)throw journeyLog(`ERROR: Inscription ${e} not found on-chain.`),new Error("Not found");journeyLog("Meta Object:",A),A.value&&journeyLog("Meta.value:",A.value);const d=Number(A.value["chunk-count"].value),F=Number(A.value["total-size"].value);journeyLog(`Inscription found. ID: ${e}, Chunks: ${d}, Size: ${F} bytes`);const j=new Array(d).fill(null),V=3,J=async we=>{journeyLog(`Fetching Chunk ${we}...`);const Se=await callReadOnlyFunctionWithRetry({contractAddress:t,contractName:c,functionName:"get-chunk",functionArgs:[uintCV(e),uintCV(we)],senderAddress:t,network},{retries:4,baseDelayMs:1e3}),me=cvToValue(Se);if(!me)throw new Error(`Chunk ${we} missing.`);let Ae;if(me instanceof Uint8Array?Ae=me:me&&me.value?Ae=me.value:me&&me.buffer?Ae=me.buffer:Ae=me,typeof Ae=="string"){Ae.startsWith("0x")&&(Ae=Ae.slice(2));const be=new Uint8Array(Ae.length/2);for(let Ce=0;Ce<Ae.length;Ce+=2)be[Ce/2]=parseInt(Ae.substring(Ce,Ce+2),16);Ae=be}if(!Ae||!Ae.length)throw new Error(`Chunk ${we} empty.`);return Ae},z=Array.from({length:d},(we,Se)=>Se),X=Array(Math.min(d,V)).fill(null).map(async()=>{for(;z.length>0;){const we=z.shift();try{j[we]=await J(we)}catch(Se){throw journeyLog(`Failed chunk ${we}`,Se),Se}}});await Promise.all(X),journeyLog("All chunks fetched. Reconstructing...");const re=new Uint8Array(j.reduce((we,Se)=>we+Se.length,0));let te=0;j.forEach(we=>{re.set(we,te),te+=we.length});const fe=Array.from(re.slice(0,16)).map(we=>we.toString(16).padStart(2,"0")).join(" ");journeyLog(`Downloaded ${re.length} bytes. Header: ${fe}`);let de="application/octet-stream";try{const we=A.value["mime-type"];journeyLog("Raw MIME object:",we),we&&(typeof we=="string"?de=we:we.data?de=we.data:we.value&&(de=we.value))}catch(we){journeyLog("Error extracting MIME",we)}if(de==="application/json"||de==="application/octet-stream"){const we=sniffMimeType(re);we&&(journeyLog(`MIME Sniffer: Corrected ${de} to ${we}`),de=we)}return{data:re,mimeType:de}}catch(p){throw journeyLog("Fetch Error",{error:p.message}),p}}function sniffMimeType(e){if(e.length<4)return null;const t=Array.from(e.slice(0,4)).map(c=>c.toString(16).padStart(2,"0")).join("").toLowerCase();return t==="1a45dfa3"?"audio/webm":t==="52494646"?"audio/wav":t==="89504e47"?"image/png":t.startsWith("ffd8ff")?"image/jpeg":t==="47494638"?"image/gif":t==="25504446"?"application/pdf":null}document.getElementById("btn-clear-viewer").addEventListener("click",()=>{document.getElementById("media-container").innerHTML='<span style="color: #ccc;">No content loaded</span>',document.getElementById("player-log").innerHTML="",journeyLog("Viewer cleared.")});const VIEWER_PAGE_SIZE=16;let viewerGalleryPage=0,viewerSelectedId=null;const inscriptionMetaCache=new Map;function tryParseMeta(e){var c,p,A,d;if(!e)return null;const t=e.value||e;try{const F=!!(((c=t.sealed)==null?void 0:c.value)??t.sealed),j=Number(((p=t["total-size"])==null?void 0:p.value)??t["total-size"]??0),V=Number(((A=t["chunk-count"])==null?void 0:A.value)??t["chunk-count"]??0),J=((d=t.owner)==null?void 0:d.value)??t.owner??null,z=t["mime-type"]??null,X=typeof z=="string"?z:(z==null?void 0:z.value)??(z==null?void 0:z.data)??(z!=null&&z.type?String(z.type):null);return{sealed:F,totalSize:j,chunkCount:V,owner:J,mimeType:X||"unknown"}}catch{return{sealed:!1,totalSize:0,chunkCount:0,owner:null,mimeType:"unknown"}}}async function fetchInscriptionMeta(e){if(inscriptionMetaCache.has(e))return inscriptionMetaCache.get(e);const{address:t,name:c}=getContractDetails(),p=await callReadOnlyFunctionWithRetry({contractAddress:t,contractName:c,functionName:"get-inscription",functionArgs:[uintCV(e)],senderAddress:t,network}),A=cvToValue(p),d=A?tryParseMeta(A):null;return inscriptionMetaCache.set(e,d),d}function setGalleryStatus(e){const t=document.getElementById("gallery-status");t&&(t.innerText=e)}function setGallerySelected(e){viewerSelectedId=e;const t=document.getElementById("gallery-grid");t&&t.querySelectorAll(".gallery-card").forEach(c=>{const p=Number(c.getAttribute("data-id"));c.classList.toggle("selected",Number.isFinite(p)&&p===e)})}async function renderGalleryPage(e){const t=document.getElementById("gallery-grid"),c=document.getElementById("gallery-page-input");if(!t)return;viewerGalleryPage=Math.max(0,Number(e)||0),c&&(c.value=String(viewerGalleryPage));const p=viewerGalleryPage*VIEWER_PAGE_SIZE,A=p+VIEWER_PAGE_SIZE-1;setGalleryStatus(`Showing IDs ${p}–${A}`),t.innerHTML="";for(let d=p;d<=A;d++){const F=document.createElement("div");F.className="gallery-card",F.setAttribute("data-id",String(d)),F.innerHTML=`
+        `,inscriptionMetaCache.clear(),viewerGalleryPage=Math.floor(d/VIEWER_PAGE_SIZE),renderGalleryPage(viewerGalleryPage)):t.innerHTML+='<div style="color:red">Sealed, but could not parse ID. Check explorer.</div>'}async function startChunkUploads(e,t,c=null){journeyLog(`Starting sequential chunk uploads for Hash: ${bufToHex(e)}`);const{address:p,name:A}=getContractDetails(),d=c||Array.from({length:currentChunks.length},(j,V)=>V),F=d.length;
+    // --- Local Storage Logic ---
+    const storageKey=`mint_progress_${bufToHex(e)}`;
+    let progressState;try{progressState=JSON.parse(localStorage.getItem(storageKey)||"{}")}catch{progressState={}}
+    progressState.uploadedIndices=new Set(progressState.uploadedIndices||[]);
+    // ---------------------------
+
+    const chunkSize = getSelectedChunkSize();
+    const useBatching = chunkSize <= 20000;
+    const BATCH_SIZE = 10;
+
+    let j=0;while(j<d.length){
+        const batchIndices = [];
+        // Gather next batch of pending indices
+        for(let k=0; k<BATCH_SIZE && (j+k)<d.length; k++){
+            const idx = d[j+k];
+            if(!progressState.uploadedIndices.has(idx)) {
+                batchIndices.push(idx);
+            } else {
+                 // Update UI for skipped
+                let z=document.getElementById(`chunk-status-${idx}`);
+                if(!z){z=document.createElement("p"),z.id=`chunk-status-${idx}`,z.style.margin="5px 0",z.style.paddingLeft="20px",t.appendChild(z)}
+                z.innerText=`Part ${idx} - Skipped (Already Sent) ✓`;
+                z.style.color="gray";
+            }
+        }
+
+        if(batchIndices.length === 0) {
+            j += BATCH_SIZE;
+            continue;
+        }
+
+        if (useBatching) {
+            // --- BATCH MODE ---
+            const firstIdx = batchIndices[0];
+            const lastIdx = batchIndices[batchIndices.length-1];
+            journeyLog(`Preparing Batch: Parts ${firstIdx}-${lastIdx}`);
+            
+            // UI Status for Batch
+            const batchStatusId = `batch-status-${firstIdx}`;
+            let z=document.getElementById(batchStatusId);
+            if(!z){z=document.createElement("p"),z.id=batchStatusId,z.style.margin="5px 0",z.style.paddingLeft="20px",t.appendChild(z)}
+            z.innerText=`Uploading Batch ${firstIdx}-${lastIdx} (${batchIndices.length} chunks)...`,z.style.color="black";
+
+            try {
+                await new Promise(te=>setTimeout(te,3e3));
+                
+                // Construct ListCV
+                const listEntries = batchIndices.map(idx => tupleCV({
+                    hash: bufferCV(new Uint8Array(e)),
+                    index: uintCV(idx),
+                    data: bufferCV(new Uint8Array(currentChunks[idx]))
+                }));
+                const batchArg = listCV(listEntries);
+
+                const X=await openContractCallWrapper({contractAddress:p,contractName:A,functionName:"add-chunk-batch",functionArgs:[batchArg],network,userSession,postConditionMode:PostConditionMode.Allow,anchorMode:AnchorMode.Any});
+                const re=(X==null?void 0:X.txId)||null;
+
+                if(re){
+                    journeyLog(`Batch TX Sent: ${re}`);
+                    z.innerText=`Batch ${firstIdx}-${lastIdx} - Sent (${re.slice(0,10)}…)`;
+                    if(isSafeModeEnabled()) await waitForTransactionSuccess(re);
+                    z.innerText=`Batch ${firstIdx}-${lastIdx} - Confirmed ✓`,z.style.color="#28a745";
+
+                    // Update State & UI for individual chunks
+                    batchIndices.forEach(idx => {
+                        progressState.uploadedIndices.add(idx);
+                        // Optional: detailed UI updates if needed, but batch status covers it
+                    });
+                    try{localStorage.setItem(storageKey,JSON.stringify({uploadedIndices:Array.from(progressState.uploadedIndices),lastUpdated:Date.now()}))}catch(err){console.warn("Storage save failed",err)}
+                    
+                    j += BATCH_SIZE; // Advance loop
+                } else { throw new Error("No TX ID returned"); }
+
+            } catch(X) {
+                journeyLog(`Batch Error`,{error:X.message});
+                z.innerText=`Batch ${firstIdx}-${lastIdx} - Failed ✕`,z.style.color="#dc3545";
+                const re=document.createElement("button");
+                re.innerText=`Retry Batch`,re.style.backgroundColor="#ffc107",re.style.border="none",re.style.padding="5px 10px",re.style.cursor="pointer",re.style.marginLeft="10px",re.style.borderRadius="4px",z.appendChild(re);
+                await new Promise(te=>{re.onclick=()=>{re.remove(),z.innerText=`Retrying Batch...`,z.style.color="blue",te()}});
+            }
+
+        } else {
+            // --- SINGLE MODE (Fallback for large chunks) ---
+            // Just process the first one in the queue, loop will iterate
+            const V = d[j];
+            const J = currentChunks[V];
+            
+            // ... (Existing Single Logic) ...
+            journeyLog(`Preparing Chunk ${V}: size=${J.length}, hash=${bufToHex(e)}`);let z=document.getElementById(`chunk-status-${V}`);if(!z){z=document.createElement("p"),z.id=`chunk-status-${V}`,z.style.margin="5px 0",z.style.paddingLeft="20px",t.appendChild(z)}
+            
+            // Check (again) if already uploaded - though loop logic above handles it, explicit single logic here:
+            if(progressState.uploadedIndices.has(V)){ j++; continue; }
+
+            z.innerText=`Uploading Part ${V} (${j+1}/${F})...`,z.style.color="black";try{await new Promise(te=>setTimeout(te,3e3));const X=await openContractCallWrapper({contractAddress:p,contractName:A,functionName:"add-chunk",functionArgs:[bufferCV(new Uint8Array(e)),uintCV(V),bufferCV(new Uint8Array(J))],network,userSession,postConditionMode:PostConditionMode.Allow,anchorMode:AnchorMode.Any}),re=(X==null?void 0:X.txId)||null;if(re){journeyLog(`Chunk ${V} TX Sent: ${re}`),z.innerText=`Part ${V} - Sent (${re.slice(0,10)}…)`;if(isSafeModeEnabled())await waitForTransactionSuccess(re);z.innerText=`Part ${V} - Confirmed ✓`,z.style.color="#28a745",
+            
+            progressState.uploadedIndices.add(V);
+            try{localStorage.setItem(storageKey,JSON.stringify({uploadedIndices:Array.from(progressState.uploadedIndices),lastUpdated:Date.now()}))}catch(err){console.warn("Storage save failed",err)}
+            
+            j++}else throw new Error("No TX ID returned")}catch(X){journeyLog(`Chunk ${V} Error`,{error:X.message}),z.innerText=`Part ${V} - Failed ✕`,z.style.color="#dc3545";const re=document.createElement("button");re.innerText=`Retry / Resume Part ${V}`,re.style.backgroundColor="#ffc107",re.style.border="none",re.style.padding="5px 10px",re.style.cursor="pointer",re.style.marginLeft="10px",re.style.borderRadius="4px",z.appendChild(re),await new Promise(te=>{re.onclick=()=>{re.remove(),z.innerText=`Retrying Part ${V}...`,z.style.color="blue",te()}})}}
+        }
+    }
+}function playerLog(e){journeyLog(`Player: ${e}`);const t=document.createElement("div");t.innerText=`> ${e}`,document.getElementById("player-log").appendChild(t)}async function fetchInscriptionData(e){const{address:t,name:c}=getContractDetails();journeyLog(`Fetching inscription data for ID: ${e} from ${t}.${c}`);try{const p=await callReadOnlyFunction({contractAddress:t,contractHash:"",contractName:c,functionName:"get-inscription",functionArgs:[uintCV(e)],senderAddress:t,network}),A=cvToValue(p);if(!A)throw journeyLog(`ERROR: Inscription ${e} not found on-chain.`),new Error("Not found");journeyLog("Meta Object:",A),A.value&&journeyLog("Meta.value:",A.value);const d=Number(A.value["chunk-count"].value),F=Number(A.value["total-size"].value);journeyLog(`Inscription found. ID: ${e}, Chunks: ${d}, Size: ${F} bytes`);const j=new Array(d).fill(null),V=3,J=async we=>{journeyLog(`Fetching Chunk ${we}...`);const Se=await callReadOnlyFunctionWithRetry({contractAddress:t,contractName:c,functionName:"get-chunk",functionArgs:[uintCV(e),uintCV(we)],senderAddress:t,network},{retries:4,baseDelayMs:1e3}),me=cvToValue(Se);if(!me)throw new Error(`Chunk ${we} missing.`);let Ae;if(me instanceof Uint8Array?Ae=me:me&&me.value?Ae=me.value:me&&me.buffer?Ae=me.buffer:Ae=me,typeof Ae=="string"){Ae.startsWith("0x")&&(Ae=Ae.slice(2));const be=new Uint8Array(Ae.length/2);for(let Ce=0;Ce<Ae.length;Ce+=2)be[Ce/2]=parseInt(Ae.substring(Ce,Ce+2),16);Ae=be}if(!Ae||!Ae.length)throw new Error(`Chunk ${we} empty.`);return Ae},z=Array.from({length:d},(we,Se)=>Se),X=Array(Math.min(d,V)).fill(null).map(async()=>{for(;z.length>0;){const we=z.shift();try{j[we]=await J(we)}catch(Se){throw journeyLog(`Failed chunk ${we}`,Se),Se}}});await Promise.all(X),journeyLog("All chunks fetched. Reconstructing...");const re=new Uint8Array(j.reduce((we,Se)=>we+Se.length,0));let te=0;j.forEach(we=>{re.set(we,te),te+=we.length});const fe=Array.from(re.slice(0,16)).map(we=>we.toString(16).padStart(2,"0")).join(" ");journeyLog(`Downloaded ${re.length} bytes. Header: ${fe}`);let de="application/octet-stream";try{const we=A.value["mime-type"];journeyLog("Raw MIME object:",we),we&&(typeof we=="string"?de=we:we.data?de=we.data:we.value&&(de=we.value))}catch(we){journeyLog("Error extracting MIME",we)}if(de==="application/json"||de==="application/octet-stream"){const we=sniffMimeType(re);we&&(journeyLog(`MIME Sniffer: Corrected ${de} to ${we}`),de=we)}return{data:re,mimeType:de}}catch(p){throw journeyLog("Fetch Error",{error:p.message}),p}}function sniffMimeType(e){if(e.length<4)return null;const t=Array.from(e.slice(0,4)).map(c=>c.toString(16).padStart(2,"0")).join("").toLowerCase();return t==="1a45dfa3"?"audio/webm":t==="52494646"?"audio/wav":t==="89504e47"?"image/png":t.startsWith("ffd8ff")?"image/jpeg":t==="47494638"?"image/gif":t==="25504446"?"application/pdf":null}document.getElementById("btn-clear-viewer").addEventListener("click",()=>{document.getElementById("media-container").innerHTML='<span style="color: #ccc;">No content loaded</span>',document.getElementById("player-log").innerHTML="",journeyLog("Viewer cleared.")});const VIEWER_PAGE_SIZE=16;let viewerGalleryPage=0,viewerSelectedId=null;const inscriptionMetaCache=new Map;function tryParseMeta(e){var c,p,A,d;if(!e)return null;const t=e.value||e;try{const F=!!(((c=t.sealed)==null?void 0:c.value)??t.sealed),j=Number(((p=t["total-size"])==null?void 0:p.value)??t["total-size"]??0),V=Number(((A=t["chunk-count"])==null?void 0:A.value)??t["chunk-count"]??0),J=((d=t.owner)==null?void 0:d.value)??t.owner??null,z=t["mime-type"]??null,X=typeof z=="string"?z:(z==null?void 0:z.value)??(z==null?void 0:z.data)??(z!=null&&z.type?String(z.type):null);return{sealed:F,totalSize:j,chunkCount:V,owner:J,mimeType:X||"unknown"}}catch{return{sealed:!1,totalSize:0,chunkCount:0,owner:null,mimeType:"unknown"}}}async function fetchInscriptionMeta(e){if(inscriptionMetaCache.has(e))return inscriptionMetaCache.get(e);const{address:t,name:c}=getContractDetails(),p=await callReadOnlyFunctionWithRetry({contractAddress:t,contractName:c,functionName:"get-inscription",functionArgs:[uintCV(e)],senderAddress:t,network}),A=cvToValue(p),d=A?tryParseMeta(A):null;return inscriptionMetaCache.set(e,d),d}function setGalleryStatus(e){const t=document.getElementById("gallery-status");t&&(t.innerText=e)}function setGallerySelected(e){viewerSelectedId=e;const t=document.getElementById("gallery-grid");t&&t.querySelectorAll(".gallery-card").forEach(c=>{const p=Number(c.getAttribute("data-id"));c.classList.toggle("selected",Number.isFinite(p)&&p===e)})}async function renderGalleryPage(e){const t=document.getElementById("gallery-grid"),c=document.getElementById("gallery-page-input");if(!t)return;viewerGalleryPage=Math.max(0,Number(e)||0),c&&(c.value=String(viewerGalleryPage));const p=viewerGalleryPage*VIEWER_PAGE_SIZE,A=p+VIEWER_PAGE_SIZE-1;setGalleryStatus(`Showing IDs ${p}–${A}`),t.innerHTML="";for(let d=p;d<=A;d++){const F=document.createElement("div");F.className="gallery-card",F.setAttribute("data-id",String(d)),F.innerHTML=`
             <div class="id">#${d}</div>
             <div class="muted">Loading…</div>
         `,F.addEventListener("click",async()=>{document.getElementById("manifest-id-input").value=d,setGallerySelected(d),document.getElementById("btn-play-single").click()}),t.appendChild(F)}await Promise.all(Array.from({length:VIEWER_PAGE_SIZE},(d,F)=>p+F).map(async d=>{const F=await fetchInscriptionMeta(d),j=t.querySelector(`.gallery-card[data-id="${d}"]`);if(!j)return;if(!F){j.innerHTML=`
