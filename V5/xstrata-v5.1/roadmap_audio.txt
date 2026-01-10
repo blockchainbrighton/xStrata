@@ -1,0 +1,11 @@
+Here is the proposed roadmap for XStrata.
+
+First, Local Storage Auto Resume. We can save your upload progress locally. If the browser crashes or you close the tab, you can pick up exactly where you left off. This is a high value and low effort upgrade.
+
+Second, Smart Contract Batching. We can update the smart contract to accept lists of chunks. This would reduce the number of wallet popups by ten to twenty times. This is the single most important performance upgrade.
+
+Third, Nonce Pipelining. We can manually manage transaction counts to remove the three second delay, making uploads faster but slightly riskier.
+
+I recommend starting with the Local Storage Auto Resume feature, as it requires no smart contract changes and immediately improves the user experience.
+
+Shall we proceed?

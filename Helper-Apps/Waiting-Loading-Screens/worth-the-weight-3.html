@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8-Bit Block Pour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #202020;
+            font-family: 'Press Start 2P', cursive;
+            image-rendering: pixelated;
+        }
+
+        /* The Container */
+        .pixel-scene {
+            position: relative;
+            transform: scale(3); /* Scale up for bulky pixel look */
+        }
+
+        /* The Glass Outline (using box-shadows for pixel borders) */
+        .glass {
+            width: 40px;
+            height: 60px;
+            margin: 0 auto;
+            position: relative;
+            /* Pixel art border technique */
+            box-shadow: 
+                -2px 0 0 #fff, 
+                2px 0 0 #fff, 
+                0 2px 0 #fff;
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* The Handle */
+        .handle {
+            position: absolute;
+            right: -10px;
+            top: 10px;
+            width: 8px;
+            height: 25px;
+            box-shadow: 
+                2px 0 0 #fff,
+                0 -2px 0 #fff,
+                0 2px 0 #fff,
+                2px 0 0 inset #fff; 
+        }
+
+        /* The Liquid */
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background-color: #F7931A; /* Bitcoin Orange */
+            /* Steps animation for jerky 8-bit feel */
+            transition: height 0.1s steps(5); 
+        }
+
+        /* Bubbles */
+        .bubble {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            opacity: 0.8;
+        }
+
+        .text-container {
+            margin-top: 4rem;
+            text-align: center;
+            color: #F7931A;
+            text-shadow: 2px 2px 0 #8B4513;
+            line-height: 1.5;
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        /* Scanlines for CRT effect */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center overflow-hidden">
+
+    <div class="scanlines"></div>
+
+    <div class="pixel-scene mb-8">
+        <div class="glass">
+            <div class="liquid" id="liquid"></div>
+            <div class="handle"></div>
+        </div>
+    </div>
+
+    <div class="text-container z-10">
+        <div id="statusText" class="text-xs mb-2 text-white">INITIALIZING...</div>
+        <div id="mainText" class="text-sm">WORTH THE<br>WEIGHT<span class="blink">_</span></div>
+    </div>
+
+    <script>
+        const liquid = document.getElementById('liquid');
+        const statusText = document.getElementById('statusText');
+        const mainText = document.getElementById('mainText');
+        
+        let height = 0;
+        // Added more messages for variety since the duration is longer
+        const messages = [
+            "SYNCING...", "INSCRIBING...", "HASHING...", 
+            "STACKING...", "CONFIRMING...", "VALIDATING...",
+            "BROADCASTING...", "MEMPOOL...", "VERIFYING..."
+        ];
+
+        function pour() {
+            // Slower increment: 0.5 per tick. 
+            // 200 ticks to reach 100%. 
+            // 200 * 50ms = 10,000ms = 10 seconds.
+            height += 0.5; 
+            
+            // Randomly stop for a "lag" effect to simulate network
+            // Adjusted threshold slightly so it doesn't stall too often
+            if(Math.random() > 0.98) {
+                 // pause briefly
+            } else {
+                liquid.style.height = height + '%';
+            }
+
+            // Text cycling
+            // Check if height is a multiple of 10 to change text more often (every ~1 sec)
+            if (height > 0 && Number.isInteger(height) && height % 10 === 0 && height < 95) {
+                statusText.innerText = messages[Math.floor(Math.random() * messages.length)];
+            }
+
+            if (height >= 100) {
+                // Reset
+                height = 0;
+                liquid.style.height = '0%';
+                statusText.innerText = "INITIALIZING...";
+            }
+
+            // Loop speed
+            setTimeout(pour, 50);
+        }
+
+        // Add bubbles randomly
+        setInterval(() => {
+            if(height > 10) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                // Snap to pixel grid (even numbers)
+                const leftPos = Math.floor(Math.random() * 38);
+                bubble.style.left = leftPos + 'px';
+                bubble.style.bottom = height + '%';
+                liquid.appendChild(bubble);
+                
+                // Animate up
+                let bubHeight = height;
+                const bubInterval = setInterval(() => {
+                    bubHeight += 2;
+                    bubble.style.bottom = bubHeight + '%';
+                    if(bubHeight > height + 10 || bubHeight >= 100) {
+                        clearInterval(bubInterval);
+                        bubble.remove();
+                    }
+                }, 100);
+            }
+        }, 300);
+
+        pour();
+    </script>
+</body>
+</html>

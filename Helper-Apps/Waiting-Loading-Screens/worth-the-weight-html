@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscribing...</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&display=swap');
+
+        body {
+            background-color: #0f0f12;
+            color: #fff;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .glass-frame {
+            width: 100px;
+            height: 180px;
+            border: 4px solid #333;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            position: relative;
+            padding: 5px;
+            background: rgba(255,255,255,0.02);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* The Stack Blocks */
+        .stack-container {
+            display: flex;
+            flex-direction: column-reverse; /* Fill from bottom */
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            gap: 2px;
+        }
+
+        .block {
+            width: 100%;
+            height: 10%; /* 10 blocks */
+            background-color: #5546ff; /* Stacks Purple */
+            opacity: 0.2; /* Dim by default */
+            transition: all 0.1s;
+        }
+
+        /* Animation class applied via CSS animation is tricky for discrete blocks, 
+           so we use a pseudo-element overlay for the 'filling' effect */
+        
+        .fill-overlay {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            width: calc(100% - 10px);
+            height: 0%;
+            background: linear-gradient(to top, #5546ff, #F7931A); /* Stacks Purple to BTC Orange */
+            opacity: 0.8;
+            box-shadow: 0 0 15px #5546ff;
+            animation: stackFill 5s steps(10) infinite; /* Steps(10) makes it look like blocks appearing */
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.5);
+            animation: scan 2s linear infinite;
+            z-index: 10;
+        }
+
+        .text-neon {
+            margin-top: 40px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .line-1 {
+            font-size: 1.2rem;
+            color: #888;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .line-2 {
+            font-size: 2rem;
+            color: #fff;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 15px #F7931A, /* Bitcoin Orange Glow */
+                0 0 30px #F7931A;
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        /* Glitch effect on 'Weight' */
+        .glitch-text {
+            position: relative;
+            display: inline-block;
+        }
+        
+        @keyframes stackFill {
+            0% { height: 0%; }
+            80% { height: 95%; } /* Fill up */
+            90% { height: 95%; opacity: 1; } /* Hold */
+            95% { height: 95%; opacity: 0; } /* Blink out */
+            100% { height: 0%; opacity: 0; } /* Reset */
+        }
+
+        @keyframes glowPulse {
+            from { text-shadow: 0 0 5px #fff, 0 0 15px #F7931A; }
+            to { text-shadow: 0 0 10px #fff, 0 0 25px #F7931A, 0 0 40px #F7931A; }
+        }
+        
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="glass-frame">
+            <div class="scan-line"></div>
+            <!-- Background blocks for texture -->
+            <div class="stack-container">
+                <div class="block"></div><div class="block"></div><div class="block"></div>
+                <div class="block"></div><div class="block"></div><div class="block"></div>
+                <div class="block"></div><div class="block"></div><div class="block"></div>
+                <div class="block"></div>
+            </div>
+            <!-- The animating fill -->
+            <div class="fill-overlay"></div>
+        </div>
+
+        <div class="text-neon">
+            <div class="line-1">Inscribing Data</div>
+            <div class="line-2">Worth the <span class="glitch-text">Weight</span></div>
+        </div>
+    </div>
+
+</body>
+</html>
