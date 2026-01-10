@@ -1,6 +1,7 @@
 ;; u64bxr-v6-1: XStrata Inscription Registry (SIP-009 Compliant)
 
 ;; SIP-009 Trait Implementation
+;; --- TOGGLE FOR DEPLOYMENT ---
 ;; TESTNET: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.nft-trait.nft-trait
 ;; MAINNET: 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait
 (use-trait nft-trait 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.nft-trait.nft-trait)
@@ -8,6 +9,7 @@
 
 (define-non-fungible-token xstrata-inscription uint)
 
+;; --- AUTHORIZATION ---
 (define-constant ERR-NOT-AUTHORIZED (err u100))
 (define-constant ERR-NOT-FOUND (err u102))
 (define-constant ERR-INVALID-CHUNK (err u103))
@@ -16,18 +18,26 @@
 (define-constant ERR-INVALID-PROOF (err u106))
 (define-constant ERR-SENDER-NOT-OWNER (err u107))
 
+;; --- CONFIGURATION ---
 (define-constant MAX-CHUNK-SIZE u65536)
 (define-constant MAX-BATCH-SIZE u10)
 (define-constant MAX-CHUNK-COUNT u1024)
 (define-constant MAX-TOTAL-SIZE u67108864)
 (define-constant MAX-PROOF-LEN u32)
 
-(define-constant CONTRACT-OWNER 'ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA) ;; TODO: update for mainnet
+;; --- OWNERSHIP & ROYALTIES ---
+;; Toggle these for Mainnet deployment:
+;; TESTNET OWNER: 'ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA
+;; MAINNET OWNER: 'SP10W2EEM757922QTVDZZ5CSEW55JEFNN30J69TM7
+(define-constant CONTRACT-OWNER tx-sender) 
 
-(define-data-var royalty-recipient principal 'STNRA47CQGS61HQNCBZMVF2HHT7AKZCP2FTE6B5X) ;; TODO: update for mainnet
-(define-data-var royalty-fee-per-chunk uint u10000)
-;; Default Token URI: On-Chain Data URI with embedded SVG (Black square with 'XS') - Base64 encoded to avoid quote escaping issues
-(define-data-var token-uri (string-ascii 256) "data:application/json;base64,eyJuYW1lIjoiWFMiLCJpbWFnZSI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48cmVjdCB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcvPjx0ZXh0IHg9JzE1JyB5PSc3MCcgZm9udC1zaXplPSc1MCcgZmlsbD0nd2hpdGUnPlhTPC90ZXh0Pjwvc3ZnPiJ9")
+;; TESTNET RECIPIENT: 'STNRA47CQGS61HQNCBZMVF2HHT7AKZCP2FTE6B5X
+;; MAINNET RECIPIENT: 'SP10W2EEM757922QTVDZZ5CSEW55JEFNN30J69TM7
+(define-data-var royalty-recipient principal 'STNRA47CQGS61HQNCBZMVF2HHT7AKZCP2FTE6B5X) 
+(define-data-var royalty-fee-per-chunk uint u10000) 
+;; Default Token URI: On-Chain Data URI (v7.0 Clean Standard)
+(define-data-var token-uri (string-ascii 256) "data:application/json;base64,eyJuYW1lIjoieFN0cmF0YSIsImltYWdlIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAgMTAnPjxjaXJjbGUgY3g9JzUnIGN5PSc1JyByPSc0JyBmaWxsPSclMjM0MDgwRkYnLz48L3N2Zz4ifQ==")
+(define-data-var collection-cover-id (optional uint) none)
 
 (define-data-var next-id uint u0)
 
@@ -65,8 +75,15 @@
 (define-read-only (get-token-uri (id uint))
     (ok (some (var-get token-uri))))
 
+(define-read-only (get-collection-cover-id)
+    (ok (var-get collection-cover-id)))
+
 (define-read-only (get-owner (id uint))
     (ok (nft-get-owner? xstrata-inscription id)))
+
+;; --- SIP-016 Contract Metadata ---
+(define-public (get-contract-metadata)
+  (ok (some "https://your-domain.com/collection.json")))
 
 ;; *** CORRECTED TRANSFER FUNCTION ***
 (define-public (transfer (id uint) (sender principal) (recipient principal))
@@ -99,6 +116,12 @@
     (begin
         (try! (assert-owner))
         (var-set token-uri value)
+        (ok true)))
+
+(define-public (set-collection-cover-id (id uint))
+    (begin
+        (try! (assert-owner))
+        (var-set collection-cover-id (some id))
         (ok true)))
 
 (define-public (set-royalty-recipient (recipient principal))
@@ -264,6 +287,12 @@
             merkle-root: hash,
             data-hash: (get context meta)
         })
+        
+        ;; Auto-set collection cover if this is the first inscription
+        (if (is-eq id u0)
+            (var-set collection-cover-id (some u0))
+            true)
+
         (map-delete PendingInscriptions pending-key)
         (var-set next-id (+ id u1))
         (ok id)))

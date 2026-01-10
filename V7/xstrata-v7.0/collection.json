@@ -1,0 +1,20 @@
+{
+  "name": "xStrata Inscription Registry",
+  "description": "A high-fidelity on-chain data storage and inscription protocol for the Stacks blockchain. Supports multi-part chunking for large media and Merkle-tree integrity verification.",
+  "image": "https://xstrata.io/logo.png",
+  "external_url": "https://xstrata.io",
+  "attributes": [
+    {
+      "trait_type": "Version",
+      "value": "7.0"
+    },
+    {
+      "trait_type": "Protocol",
+      "value": "SIP-009 / SIP-016"
+    }
+  ],
+  "properties": {
+    "developer": "xStrata Labs",
+    "network": "Stacks"
+  }
+}

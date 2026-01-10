@@ -2,7 +2,7 @@ import re
 import os
 
 # Read new contract code
-with open('contracts/u64bxr-v7.clar', 'r') as f:
+with open('contracts/u64bxr-v6-1.clar', 'r') as f:
     new_contract = f.read()
 
 # Read JS bundle

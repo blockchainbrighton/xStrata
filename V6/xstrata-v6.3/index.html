@@ -209,7 +209,7 @@
             <option value="legacy">Legacy (u64)</option>
             <option value="batch">Batch (u64b)</option>
             <option value="batchx">BatchX (u64bx)</option>
-            <option value="batchxr" selected>BatchXR (u64bxr-v7)</option>
+            <option value="batchxr" selected>BatchXR (u64bxr-v6-3)</option>
         </select>
         <label style="display:block; margin-top:10px;">Legacy Contract Address:</label>
         <input type="text" id="contract-address-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64">
@@ -218,9 +218,9 @@
         <label style="display:block; margin-top:10px;">BatchX Contract Address:</label>
         <input type="text" id="contract-address-batchx-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bx">
         <label style="display:block; margin-top:10px;">BatchXR Contract Address:</label>
-        <input type="text" id="contract-address-batchxr-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v7">
+        <input type="text" id="contract-address-batchxr-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v6-3">
         <label style="display:block; margin-top:10px;">BatchXR v6 Contract Address:</label>
-        <input type="text" id="contract-address-batchxrv3-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v7">
+        <input type="text" id="contract-address-batchxrv3-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v6-3">
         <small>Format: ADDRESS.CONTRACT_NAME</small>
     </div>
 
@@ -250,7 +250,6 @@
                 <button id="btn-dump-auth" style="background:#444; padding:6px 10px; font-size:12px; margin-left:10px;">Dump Auth Debug</button>
                 <button id="btn-reset-wallet" style="background:#444; padding:6px 10px; font-size:12px; margin-left:6px;">Reset Wallet Selection</button>
                 <button id="btn-toggle-monitor" style="background:#444; padding:6px 10px; font-size:12px; margin-left:6px;">Start Auth Monitor</button>
-                <button id="btn-debug-uri" style="background:#007bff; padding:6px 10px; font-size:12px; margin-left:6px;" onclick="debugTokenUri()">Debug Token URI</button>
             </div>
         </div>
     </div>
@@ -268,7 +267,7 @@
         <button id="btn-deploy-contract-batch" style="display:none">Deploy 'u64b' (batch)</button>
         <button id="btn-deploy-contract-batchx" style="display:none">Deploy 'u64bx' (batchx)</button>
         <button id="btn-deploy-contract-batchxr" style="display:none">Deploy 'u64bxr' (batchxr)</button>
-        <button id="btn-deploy-contract-batchxrv3">Deploy Registry Contract (v7.0)</button>
+        <button id="btn-deploy-contract-batchxrv3">Deploy Registry Contract (v6.3)</button>
     </div>
 
     <div id="page-mint" class="card hidden">
