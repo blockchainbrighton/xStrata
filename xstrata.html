@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XStrata Protocol | The Infinite Chain</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --primary: #7d00ff; /* Stacks Purple */
+            --accent: #00ffbd; /* Cyber Green */
+            --text: #e0e0e0;
+            --code-bg: #1e1e1e;
+            --mono: 'Courier New', Courier, monospace;
+            --sans: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem; }
+        h1 { font-size: 4rem; line-height: 1.1; background: linear-gradient(to right, #fff, #888); -webkit-background-clip: text; color: transparent; }
+        h2 { font-size: 2.5rem; border-left: 4px solid var(--accent); padding-left: 1rem; }
+        p { margin-bottom: 1.5rem; font-size: 1.1rem; color: #aaa; }
+        .highlight { color: var(--accent); }
+        .mono { font-family: var(--mono); color: var(--accent); font-size: 0.9em; }
+
+        /* --- LAYOUT UTILS --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .grid { display: grid; gap: 2rem; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        
+        /* --- COMPONENTS --- */
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--primary);
+        }
+        .btn:hover { background: transparent; color: var(--primary); box-shadow: 0 0 20px rgba(125,0,255,0.4); }
+        .btn-outline { background: transparent; border: 1px solid var(--text); color: var(--text); }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+        .card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+        /* --- HERO SECTION --- */
+        header {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: radial-gradient(circle at top right, #1a0b2e 0%, var(--bg) 60%);
+        }
+        .hero-content { z-index: 2; position: relative; }
+        .hero-glitch {
+            position: absolute;
+            right: 10%;
+            top: 20%;
+            width: 300px;
+            height: 300px;
+            border: 2px dashed #333;
+            animation: spin 20s linear infinite;
+            opacity: 0.3;
+        }
+        .hero-glitch::before {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            border: 2px solid var(--accent);
+            transform: rotate(45deg);
+        }
+
+        /* --- PROTOCOL DIAGRAM --- */
+        .protocol-section { padding: 100px 0; border-top: 1px solid #222; }
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .step-num {
+            font-family: var(--mono);
+            font-size: 3rem;
+            color: #333;
+            line-height: 1;
+            font-weight: bold;
+        }
+
+        /* --- CODE PREVIEW --- */
+        .code-window {
+            background: var(--code-bg);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: #ccc;
+            overflow-x: auto;
+            border-left: 3px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .kw { color: #ff79c6; } /* Keyword */
+        .fn { color: #8be9fd; } /* Function */
+        .str { color: #f1fa8c; } /* String */
+        .num { color: #bd93f9; } /* Number */
+
+        /* --- FOOTER --- */
+        footer { padding: 50px 0; text-align: center; border-top: 1px solid #222; margin-top: 50px; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media(max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="hero-glitch"></div>
+        <div class="container hero-content">
+            <p class="mono">> INITIALIZING PROTOCOL V7...</p>
+            <h1>PERMANENCE<br>FRAGMENTED<br><span class="highlight">REASSEMBLED.</span></h1>
+            <p style="max-width: 600px;">
+                XStrata is the high-performance inscription protocol for Stacks. 
+                We bypass blockchain size limits by shattering data into 
+                atomic chunks, securing them with Merkle proofs, and 
+                minting them as tradable SIP-009 assets.
+            </p>
+            <div style="margin-top: 2rem;">
+                <a href="index.html" class="btn">Launch App</a>
+                <a href="#how-it-works" class="btn btn-outline" style="margin-left: 10px;">Read the Docs</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="container" style="padding: 100px 0;">
+        <div class="grid grid-3">
+            <div class="card">
+                <h3>⛓️ Limitless Storage</h3>
+                <p>Standard transactions fail at 1MB. XStrata uses <span class="mono">BatchXR</span> technology to split files into 64KB chunks, allowing for high-fidelity audio, video, and complex apps to live on Bitcoin's layer.</p>
+            </div>
+            <div class="card">
+                <h3>💎 True Ownership</h3>
+                <p>Unlike standard inscriptions which are often just database entries, XStrata mints a true <strong>SIP-009 NFT</strong> upon sealing. Trade your data on Gamma, Xverse, and standard marketplaces.</p>
+            </div>
+            <div class="card">
+                <h3>⚡ Recursive Media</h3>
+                <p>Our recursive engine can fetch multiple inscriptions and stitch them together at runtime. Build complex HTML5 apps or layered audio compositions entirely on-chain.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="protocol-section">
+        <div class="container">
+            <div class="grid grid-2">
+                <div>
+                    <h2>The Protocol Logic</h2>
+                    <p>XStrata isn't just storage; it's a cryptographic verification engine.</p>
+                    
+                    <div class="flow-step">
+                        <div class="step-num">01</div>
+                        <div>
+                            <h3>Fragmentation</h3>
+                            <p>Files are sliced into 64KB buffers. A Merkle Tree is generated client-side to create a unique <code>root-hash</code> for the entire file.</p>
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="step-num">02</div>
+                        <div>
+                            <h3>Inscription</h3>
+                            <p>Chunks are uploaded individually or in batches. The smart contract validates every byte against the proof, ensuring no data corruption occurs.</p>
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="step-num">03</div>
+                        <div>
+                            <h3>Sealing & Minting</h3>
+                            <p>Once all chunks are received, the <code>seal-inscription</code> function locks the data forever and mints the <strong>xstrata-inscription</strong> NFT to your wallet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="code-window">
+                        <div style="margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px;">📄 contracts/u64bxr-v7.clar</div>
+<pre>
+<span class="kw">;; Core Inscription Logic</span>
+(<span class="kw">define-public</span> (<span class="fn">seal-inscription</span> (hash (<span class="kw">buff</span> 32)))
+  (<span class="kw">let</span> ((pending-key { hash: hash, owner: tx-sender })
+        (meta (<span class="kw">unwrap!</span> (<span class="fn">map-get?</span> PendingInscriptions pending-key) ERR-NOT-FOUND))
+        (id (<span class="fn">var-get</span> next-id)))
+    
+    <span class="kw">;; 1. Verify Completion</span>
+    (<span class="fn">asserts!</span> (<span class="fn">is-eq</span> (<span class="fn">get</span> received-count meta) (<span class="fn">get</span> chunk-count meta)) ERR-NOT-COMPLETE)
+    
+    <span class="kw">;; 2. SIP-009: Mint the NFT</span>
+    (<span class="kw">try!</span> (<span class="fn">nft-mint?</span> xstrata-inscription id tx-sender))
+
+    <span class="kw">;; 3. Lock Data Immutably</span>
+    (<span class="fn">map-insert</span> Inscriptions id {
+        owner: tx-sender,
+        sealed: true,
+        merkle-root: hash,
+        data-hash: (<span class="fn">get</span> context meta)
+    })
+    
+    (<span class="fn">ok</span> id)))
+</pre>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 0.9rem;">
+                        <span class="mono">>> System Status:</span> <span style="color: #0f0">Online</span><br>
+                        <span class="mono">>> Contract:</span> u64bxr-v7.clar<br>
+                        <span class="mono">>> Optimization:</span> IndexedDB + Merkle Proofs
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container" style="padding: 100px 0;">
+        <h2 style="text-align: center; margin-bottom: 50px;">Platform Capabilities</h2>
+        <div class="grid grid-3">
+            <div class="card" style="border-top: 4px solid #ff0055;">
+                <h4>Audio Streaming</h4>
+                <p>The <code>index-06f51251.js</code> engine includes a recursive audio processor. It stitches chunked audio data into a seamless buffer for playback directly from the blockchain.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid #00ffbd;">
+                <h4>IndexedDB Caching</h4>
+                <p>Our V7 optimization layer caches chunks locally. Load your inscriptions instantly without hammering the Stacks API nodes repeatedly.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid #0088ff;">
+                <h4>Hiro Proxy Security</h4>
+                <p>Includes a dedicated Node.js proxy (`server.js`) to handle rate limits and secure your API interactions during high-volume uploads.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <h3>XSTRATA</h3>
+            <p class="mono">Build Unstoppable Things.</p>
+            <br>
+            <a href="index.html" class="btn">Launch App</a>
+            <br><br>
+            <p style="font-size: 0.8rem; opacity: 0.5;">Powered by Stacks & Bitcoin</p>
+        </div>
+    </footer>
+
+</body>
+</html>
