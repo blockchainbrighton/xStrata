@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stacks Inscription Proto</title>
+    <style>
+        body { font-family: monospace; max-width: 800px; margin: 0 auto; padding: 20px; background: #f0f0f0; }
+        .card { background: white; padding: 20px; margin-bottom: 20px; border: 1px solid #ccc; }
+        button { cursor: pointer; padding: 10px; background: #000; color: #fff; border: none; }
+        .hidden { display: none; }
+        input { width: 100%; margin: 10px 0; padding: 5px; }
+        .status { margin-top: 10px; font-size: 12px; line-height: 1.3; }
+        .status.info { color: #555; }
+        .status.warn { color: #856404; }
+        .status.error { color: #721c24; }
+        .status.ok { color: #155724; }
+        .drop-zone {
+            border: 2px dashed #bbb;
+            border-radius: 8px;
+            padding: 14px;
+            background: #fafafa;
+            margin: 10px 0;
+            color: #555;
+            transition: border-color 120ms ease, background 120ms ease;
+        }
+        .drop-zone.active {
+            border-color: #3498db;
+            background: #eef7ff;
+            color: #1b4f72;
+        }
+        .mint-file-panel {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin: 10px 0;
+        }
+        .mint-file-preview {
+            flex: 1;
+            min-width: 220px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+        }
+        .mint-file-stats {
+            flex: 1.3;
+            min-width: 260px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+        }
+        .mint-kv {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 6px 10px;
+            font-size: 12px;
+            line-height: 1.35;
+        }
+        .mint-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .mint-stat-item {
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        .mint-stat-item label {
+            display: block;
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .mint-stat-item span {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            word-break: break-all;
+        }
+        .mint-kv .k { color: #666; }
+        .mint-kv .v { color: #111; word-break: break-word; }
+        .mint-section-title {
+            margin: 0 0 8px;
+            font-size: 12px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .gallery-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .gallery-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 10px;
+            line-height: 1.2;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            word-break: break-all;
+        }
+        .gallery-card:hover { border-color: #999; }
+        .gallery-card.selected { border-color: #28a745; box-shadow: 0 0 0 2px rgba(40,167,69,0.15); }
+        .gallery-card .id { font-weight: 700; font-size: 12px; margin-bottom: 4px; color: #000; }
+        .gallery-card .muted { color: #777; font-size: 9px; margin-bottom: 2px; }
+        .gallery-card .missing { color: #856404; font-weight: bold; }
+        @media (max-width: 720px) {
+            .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        
+        /* Viewer Layout (Laptop Optimization) */
+        .viewer-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        @media (min-width: 992px) {
+            .viewer-layout {
+                display: grid;
+                grid-template-columns: 320px 1fr;
+                grid-template-rows: calc(100vh - 180px); /* Viewport height minus header */
+                gap: 20px;
+                align-items: start;
+            }
+            .viewer-gallery-col {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden; /* Container fixed */
+            }
+            .viewer-gallery-scroll {
+                flex: 1;
+                overflow-y: auto;
+                margin-top: 10px;
+                padding-right: 4px;
+            }
+            .viewer-main-col {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            /* Override media container for full height in grid */
+            #media-container {
+                flex: 1;
+                min-height: 0;
+                margin-top: 10px !important;
+            }
+            /* Adjust gallery grid for narrower column */
+            #gallery-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+        
+        /* Compact View & Grid Overrides */
+        .card { padding: 12px; margin-bottom: 12px; }
+        h1 { margin: 8px 0; font-size: 1.4em; }
+        h2 { margin: 0 0 8px 0; font-size: 1.2em; }
+        .gallery-card { padding: 6px; font-size: 11px; }
+        
+        @media (min-width: 1100px) {
+            #gallery-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 6px;
+            }
+            .viewer-layout {
+                grid-template-columns: 400px 1fr;
+                grid-template-rows: calc(100vh - 100px);
+            }
+        }
+    </style>
+<!-- Main Entry Point (Initializes Optimization Layer and Core Logic) -->
+<script type="module" crossorigin src="/assets/main.js?v=1.0.0"></script>
+
+</head>
+<body>
+    <div id="contract-status-bar" style="background: #222; color: #eee; padding: 6px 12px; font-size: 11px; font-family: monospace; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444;">
+        <span>Contract: <strong id="active-contract-name" style="color: #fff;">Loading...</strong></span>
+        <span id="active-contract-status" style="color: #888;">...</span>
+    </div>
+    <h1>Phase-1 Inscription Proto</h1>
+    
+    <!-- Config Section (Hidden for Streamlined UX) -->
+    <div class="card" style="background: #eef; border-color: #aaf; display: none;">
+        <h3>Configuration</h3>
+        <label style="display:block; margin-top:6px;">Contract Mode:</label>
+        <select id="contract-mode-select" style="width: auto; margin-left: 10px; padding: 4px;">
+            <option value="legacy">Legacy (u64)</option>
+            <option value="batch">Batch (u64b)</option>
+            <option value="batchx">BatchX (u64bx)</option>
+            <option value="batchxr" selected>BatchXR (u64bxr-v7)</option>
+            <option value="batchxrv9">BatchXR (u64bxr-v9)</option>
+            <option value="batchxrv9-2">BatchXR (u64bxr-v9.2)</option>
+        </select>
+        <label style="display:block; margin-top:10px;">Legacy Contract Address:</label>
+        <input type="text" id="contract-address-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64">
+        <label style="display:block; margin-top:10px;">Batch Contract Address:</label>
+        <input type="text" id="contract-address-batch-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64b">
+        <label style="display:block; margin-top:10px;">BatchX Contract Address:</label>
+        <input type="text" id="contract-address-batchx-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bx">
+        <label style="display:block; margin-top:10px;">BatchXR Contract Address:</label>
+        <input type="text" id="contract-address-batchxr-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v7">
+        <label style="display:block; margin-top:10px;">BatchXR v6 Contract Address:</label>
+        <input type="text" id="contract-address-batchxrv3-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v7">
+        <label style="display:block; margin-top:10px;">BatchXR v9 Contract Address:</label>
+        <input type="text" id="contract-address-batchxrv9-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9">
+        <label style="display:block; margin-top:10px;">BatchXR v9.2 Contract Address:</label>
+        <input type="text" id="contract-address-batchxrv9-2-input" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2">
+        <small>Format: ADDRESS.CONTRACT_NAME</small>
+    </div>
+
+    <div id="wallet-section" class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center;">
+                <button id="connect-wallet">Connect Wallet</button>
+                <span id="address-display" style="margin-left:10px; font-weight:700;"></span>
+                <span id="wallet-summary" style="margin-left:10px; font-size:12px; color:#555;">Not connected.</span>
+            </div>
+            <button id="btn-wallet-toggle" style="background:transparent; color:#555; border:1px solid #ccc; padding:4px 8px; font-size:11px; cursor:pointer; border-radius:4px;">Details ▼</button>
+        </div>
+
+        <div id="wallet-details" class="hidden" style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
+            <button id="disconnect-wallet" class="hidden" style="background: #d00;">Disconnect</button>
+            <div id="auth-status" class="status info">
+                Not connected. Viewing inscriptions works without a wallet, but deploying and inscribing require connecting.
+            </div>
+            <div class="status info" style="opacity: 0.85;">
+                Tip: Desktop dapps typically require a browser wallet extension. Being logged into a separate web wallet does not automatically connect here.
+            </div>
+            <div class="status info" style="margin-top: 12px;">
+                <label style="cursor:pointer;">
+                    <input type="checkbox" id="toggle-auth-debug" checked style="width:auto; margin-right:6px;">
+                    Verbose auth logging
+                </label>
+                <button id="btn-dump-auth" style="background:#444; padding:6px 10px; font-size:12px; margin-left:10px;">Dump Auth Debug</button>
+                <button id="btn-reset-wallet" style="background:#444; padding:6px 10px; font-size:12px; margin-left:6px;">Reset Wallet Selection</button>
+                <button id="btn-toggle-monitor" style="background:#444; padding:6px 10px; font-size:12px; margin-left:6px;">Start Auth Monitor</button>
+                <button id="btn-debug-uri" style="background:#007bff; padding:6px 10px; font-size:12px; margin-left:6px;" onclick="debugTokenUri()">Debug Token URI</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <button onclick="showPage('deploy')">Deploy Contract</button>
+        <button onclick="showPage('mint')">Mint Mode</button>
+        <button onclick="showPage('play')">Inscription Viewer</button>
+    </div>
+
+    <!-- PAGE: DEPLOY -->
+    <div id="page-deploy" class="card hidden">
+        <h2>Deploy Smart Contract</h2>
+        <p>Deploy the Inscription Registry contract to the blockchain.</p>
+        <button id="btn-deploy-contract" style="display:none">Deploy 'u64' (legacy)</button>
+        <button id="btn-deploy-contract-batch" style="display:none">Deploy 'u64b' (batch)</button>
+        <button id="btn-deploy-contract-batchx" style="display:none">Deploy 'u64bx' (batchx)</button>
+        <button id="btn-deploy-contract-batchxr" style="display:none">Deploy 'u64bxr' (batchxr)</button>
+        <button id="btn-deploy-contract-batchxrv3">Deploy Registry Contract (v7.0)</button>
+        <button id="btn-deploy-contract-batchxrv9">Deploy Registry Contract (v9.0)</button>
+        <button id="btn-deploy-contract-batchxrv9-2">Deploy Registry Contract (v9.2)</button>
+    </div>
+
+    <div id="page-mint" class="card hidden">
+        <h2>Inscribe File</h2>
+        <p>Select any file (Audio, Image, Video, HTML, Text) to inscribe.</p>
+        
+        <label style="display: none; margin-bottom: 10px;">
+            <strong>Chunk Size Strategy:</strong>
+            <select id="chunk-size-select" style="width: auto; margin-left: 10px; padding: 4px;">
+                <option value="8192">8 KB (Safe / Legacy)</option>
+                <option value="16384">16 KB (Recommended)</option>
+                <option value="32768">32 KB (Fast)</option>
+                <option value="65536" selected>64 KB (Maximum Supported)</option>
+            </select>
+        </label>
+        <label style="display: block; margin-bottom: 10px;">
+            <strong>Batch Size (chunks per TX):</strong>
+            <select id="batch-size-select" style="width: auto; margin-left: 10px; padding: 4px;" disabled>
+                <option value="2" selected>2 (Recommended)</option>
+                <option value="4">4 (Stable)</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+                <option value="10">10 (Max)</option>
+            </select>
+            <span id="batch-size-note" style="margin-left: 8px; color: #666;">Applies only in Batch modes</span>
+        </label>
+
+        <div id="drop-zone" class="drop-zone">
+            Drag & drop a file here, or choose one:
+            <input type="file" id="file-input">
+        </div>
+        <div id="mint-file-panel" class="mint-file-panel hidden">
+            <div class="mint-file-preview">
+                <div class="mint-section-title">Preview</div>
+                <div id="mint-file-preview"></div>
+            </div>
+            <div class="mint-file-stats">
+                <div class="mint-section-title">Inscription Plan</div>
+                <div id="mint-file-stats" class="mint-kv"></div>
+            </div>
+        </div>
+        <div id="mint-guidance" class="status info"></div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label style="flex: 1; min-width: 220px;">
+                Fee per transaction (microSTX)
+                <input type="number" id="fee-per-tx" value="500000" min="0" step="1000" style="width: 100%; margin: 6px 0;">
+            </label>
+                            <label>
+                                <input type="checkbox" id="toggle-safe-mode"> 
+                                Enable Safe Mode (Wait for confirmations - slower, requires manual wallet approval per tx)
+                            </label>
+            <button id="btn-fetch-fee-rate" style="background:#444; padding:8px 10px; font-size:12px; margin-top: 18px;">Fetch Fee Rates</button>
+        </div>
+        <div id="fee-estimates" class="status info"></div>
+        <div id="mint-progress" class="status info"></div>
+        <div id="mint-steps"></div>
+        <button id="btn-start-mint" class="hidden">Begin Inscription</button>
+        
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+        
+        <div style="background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 5px;">
+            <h3 style="margin-top: 0; font-size: 1em; color: #666;">Resume / Retry Inscription</h3>
+            <p style="font-size: 0.85em; color: #888;">Stuck? Enter your Inscription ID to finish uploading missing chunks and seal it.</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="resume-id-input" placeholder="ID (e.g. 7)" style="flex: 1; margin: 0;">
+                <button id="btn-resume-mint" style="background: #6c757d; flex: 1;">Check & Resume</button>
+            </div>
+            <div id="resume-status" style="margin-top: 10px; font-size: 0.9em;"></div>
+        </div>
+    </div>
+    <div id="page-play">
+        <div class="viewer-layout">
+            <!-- Left Column: Gallery -->
+            <div class="viewer-gallery-col card" style="margin:0; border:1px solid #ddd;">
+                <div>
+                    <div style="font-weight:700;">Browse Inscriptions</div>
+                    <div id="gallery-status" style="font-size:12px; color:#666; margin-bottom:5px;">Loading...</div>
+                    <div class="gallery-controls" style="gap:5px; margin:5px 0; display:grid; grid-template-columns: 1fr 1fr;">
+                         <button id="gallery-prev" style="background:#444;">&lt; Page</button>
+                         <button id="gallery-next" style="background:#444;">Page &gt;</button>
+                    </div>
+                    <div class="gallery-controls" style="gap:5px; margin:5px 0; display:grid; grid-template-columns: 1fr 1fr;">
+                         <button id="btn-prev-id" style="background:#555;">&lt; ID</button>
+                         <button id="btn-next-id" style="background:#555;">ID &gt;</button>
+                    </div>
+                    <div class="gallery-controls" style="gap:5px; margin:5px 0; display:flex; align-items:center;">
+                         <span style="font-size:11px;">Page</span>
+                         <input type="number" id="gallery-page-input" value="0" min="0" step="1" style="width:40px; margin:0; padding:2px;">
+                         <button id="gallery-go" style="background:#444; padding:4px 8px;">Go</button>
+                         <button id="gallery-refresh" style="background:#6c757d; padding:4px 8px; margin-left:auto;">↻</button>
+                    </div>
+                    <div class="gallery-controls" style="gap:5px; margin:5px 0; display:flex;">
+                         <input type="number" id="gallery-jump-id" placeholder="Jump to ID" style="width:100px; margin:0; flex:1;">
+                         <button id="gallery-jump" style="background:#444;">Jump</button>
+                    </div>
+                </div>
+                <div id="gallery-grid" class="gallery-grid viewer-gallery-scroll"></div>
+            </div>
+
+            <!-- Right Column: Main Viewer -->
+            <div class="viewer-main-col card" style="margin:0; border:1px solid #ddd;">
+                <h2 style="margin-top:0; font-size:1.4em;">Universal Viewer</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                    <input type="number" id="manifest-id-input" placeholder="Inscription ID (e.g. 1)" style="flex: 1; margin: 0;">
+                    <button id="btn-play-single" style="flex: 0 0 auto;">Load & View</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                     <button id="btn-load-manifest" style="background:#555; font-size:11px; padding:4px 8px;">Load Manifest (JSON)</button>
+                     <button id="btn-clear-viewer" style="background:#d00; font-size:11px; padding:4px 8px;">Clear</button>
+                </div>
+
+                <div id="media-container" style="border: 2px dashed #ccc; background: #fafafa; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                    <div id="media-content">
+                        <span style="color: #ccc;">No content loaded</span>
+                    </div>
+                    <div id="loading-overlay" style="position: absolute; inset: 0; z-index: 50; display: none; background: #000; align-items: center; justify-content: center;">
+                        <iframe src="/good-things-come.html" title="Loading" style="border: 0; width: 100%; height: 100%;"></iframe>
+                    </div>
+                </div>
+                <div id="player-log" style="margin-top: 5px; font-size: 0.85em; color: #555; height: 40px; overflow-y: auto; font-family:monospace; border-top:1px solid #eee;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOURNEY LOG -->
+    <div class="card" style="background: #222; color: #0f0; font-size: 12px; height: 200px; overflow-y: auto;">
+        <h3>Journey Log (Debug)</h3>
+        <div id="journey-log"></div>
+    </div>
+
+    
+
+</body>
+</html>

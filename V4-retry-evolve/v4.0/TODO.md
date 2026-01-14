@@ -1,0 +1,7 @@
+Check if there are ways to reduce user signing of transactions - can we appply a batch transaction of some type so they only confirm once per inscription ID?
+
+Can we test some variable chunk size settings too? We need to work out where chunk size becomes problematic and also offer some better options to people trying to inscribe larger files
+
+When we enter the viewer mode can we display previous inscriptions in groups of 16 so there is a grid for 1-16 then a next button or input option to jump to subsequent pages of 16? Currently we have to physically enter an ID and click view which should still work but should default to viewing the first 16 in a grid until user enters a specific ID or clicks on one of the showing inscriptions in the grid then should show the specific inscription they selected or ID they entered
+
+We need something like job numbers to separate from IDs so chunks are part of a sequential job number or a better name if you have it so the sequence of inscription IDs are only applied and sealed with the seal contract so multiple people can have ongoing jobs that are incomplete that do not get assigned the next inscription ID number until they are completed so incomplete jobs are not given IDs that end up clogging up with unfinished jobs. How should we implement this?

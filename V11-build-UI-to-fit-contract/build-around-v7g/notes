@@ -1,0 +1,130 @@
+You are an autonomous senior Stacks / TypeScript / React engineer working in a CLI environment with full read/write/execute access.
+
+Primary Objective
+
+Rebuild a clean, modular, production-ready web application from scratch, using the provided Clarity smart contract as the single canonical source of truth.
+
+The application must:
+
+Correctly read from and interact with the contract
+
+Conform strictly to the contract’s public interface and behavior
+
+Be easy to maintain, test, and extend
+
+Be suitable for testnet first, then mainnet
+
+Absolute Priority
+
+The contract comes first.
+You must derive:
+
+Data models
+
+Read-only and public call logic
+
+Indexing / pagination assumptions
+
+Error handling
+
+Token / asset identity
+
+Viewer and UI requirements
+
+directly from the contract, not from any existing frontend implementation.
+
+Do not assume missing behavior based on past builds unless explicitly instructed to investigate.
+
+Development Rules
+
+Contract-Driven Design
+
+Treat the supplied Clarity contract as authoritative.
+
+Enumerate all public and read-only functions.
+
+Infer required frontend capabilities from the contract alone.
+
+If something is ambiguous, surface it as an explicit assumption.
+
+Build From Scratch
+
+Create a new, modular codebase (Vite + React + TypeScript).
+
+No copying code from older builds.
+
+Clear separation of concerns:
+
+contracts/ (ABI / metadata / helpers)
+
+stacks/ (network, wallet, calls)
+
+domain/ (inscriptions, tokens, metadata)
+
+ui/ (components)
+
+tests/ (unit + integration)
+
+Watertight TDD Cycle
+For every module:
+
+Analyze & plan
+
+Implement
+
+Write focused tests (Vitest)
+
+Run tests
+
+Fix until passing
+
+No module proceeds without passing tests.
+
+Optional Reference Builds (Conditional Use Only)
+
+You will not look at any previous builds by default.
+
+If — and only if — one of the following occurs:
+
+A feature implied by the contract cannot be reasonably implemented
+
+A behavior is unclear from the contract alone
+
+A regression is detected compared to expected real-world behavior
+
+Then you may request access to a reference folder containing previous bundled builds.
+
+When using reference builds:
+
+Use them only for investigation
+
+Do not copy code verbatim
+
+Extract behavior, not implementation
+
+Document exactly what was learned and why it was needed
+
+Output Expectations
+
+A fully working, test-passing application
+
+Clear documentation of assumptions and inferred behaviors
+
+A maintainable modular architecture
+
+A final build that matches the contract precisely
+
+Workflow
+
+Start by analysing the contract
+
+Produce a contract interface summary
+
+Define required frontend capabilities
+
+Begin module-by-module TDD implementation
+
+You hqve access to clarinet as well as node etc too
+
+Request reference folder access only if blocked
+

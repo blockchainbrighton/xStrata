@@ -1,0 +1,12 @@
+{
+  "name": "Stacks Inscription Proto",
+  "start_url": "/",
+  "description": "Prototype for inscribing and viewing chunked data on Stacks.",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,22 +1,28 @@
 [project]
-name = 'inscription-project'
+name = 'xStrata'
 description = ''
 authors = []
 telemetry = true
 cache_dir = './.cache'
 requirements = []
+
 [contracts.sip009-nft-trait]
 path = "contracts/sip009-nft-trait.clar"
 clarity_version = 2
 epoch = 2.5
-[contracts.inscription]
-path = 'contracts/u64bxr-v7.clar'
+
+
+# Add every other contract so Clarinet checks them too
+[contracts.u64bxr-v11-2]
+path = 'contracts/u64bxr-v11.2.clar'
 clarity_version = 4
 epoch = 'latest'
+
+
 [repl.analysis]
 passes = [
-    'call_checker',
-    'check_checker',
+  'call_checker',
+  'check_checker',
 ]
 
 [repl.analysis.lints]
