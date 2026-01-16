@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stout Loader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050505;
+            overflow: hidden;
+            font-family: 'Playfair Display', serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0;
+            /* Prevents selection cursor from ruining the vibe */
+            user-select: none;
+        }
+
+        .ambient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #1a1005 100%);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Glass Shape - Scaled using vmin to fit square canvas */
+        .glass {
+            width: 25vmin;  /* Scaled width */
+            height: 45vmin; /* Scaled height (approx 45% of viewport) */
+            border-left: 0.6vmin solid rgba(255,255,255,0.3);
+            border-right: 0.6vmin solid rgba(255,255,255,0.3);
+            border-bottom: 1.2vmin solid rgba(255,255,255,0.5);
+            border-radius: 0.5vmin 0.5vmin 3vmin 3vmin;
+            position: relative;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 0 4vmin rgba(0,0,0,0.8);
+            overflow: hidden;
+            /* Tapering effect using transform */
+            transform: perspective(100vmin) rotateX(5deg);
+            margin-bottom: 6vmin;
+        }
+
+        /* The Liquid */
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, #0f0500, #2e1205);
+            animation: pour 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        /* The Bubbles "Surge" Effect */
+        .liquid::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 10px 10px;
+            opacity: 0.5;
+            animation: bubbles 4s linear infinite;
+        }
+
+        /* The Creamy Head */
+        .head {
+            position: absolute;
+            top: -3vmin; /* Relative to glass size */
+            left: 0;
+            width: 100%;
+            height: 3vmin;
+            background: #e6dcc5;
+            box-shadow: 0 0.5vmin 2vmin rgba(230, 220, 197, 0.4);
+            transition: height 0.3s;
+        }
+        
+        /* Neon Text Styling */
+        .neon-text {
+            color: #fff;
+            text-shadow: 
+                0 0 1vmin #fff,
+                0 0 2vmin #fff,
+                0 0 4vmin #e6dcc5,
+                0 0 6vmin #e6dcc5,
+                0 0 8vmin #b8860b;
+            opacity: 0.2;
+            animation: flicker 4s infinite alternate;
+        }
+
+        .text-block {
+            text-align: center;
+            z-index: 10;
+            padding: 0 4vmin;
+        }
+
+        .headline {
+            font-size: 6vmin; /* Responsive font size */
+            font-style: italic;
+            font-weight: 700;
+            margin: 0 0 3vmin;
+            letter-spacing: 0.08em;
+            line-height: 1.15;
+            white-space: nowrap; /* Keep it on one/two nice lines */
+        }
+
+        .loading-copy {
+            color: #78716c;
+            font-family: Arial, sans-serif;
+            font-size: 2.5vmin; /* Responsive font size */
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        /* Animations */
+        @keyframes pour {
+            0% { height: 0%; }
+            10% { height: 5%; } 
+            90% { height: 95%; }
+            100% { height: 95%; } 
+        }
+
+        @keyframes bubbles {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100px); }
+        }
+
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                opacity: 1;
+                text-shadow: 
+                    0 0 1vmin #fff,
+                    0 0 2vmin #fff,
+                    0 0 4vmin #e6dcc5,
+                    0 0 8vmin #b8860b;
+            }
+            20%, 24%, 55% {
+                opacity: 0.5;
+                text-shadow: none;
+            }
+        }
+
+        /* Loading Dots */
+        .dots span {
+            animation: blink 1.4s infinite both;
+        }
+        .dots span:nth-child(2) { animation-delay: 0.2s; }
+        .dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Light Background -->
+    <div class="ambient"></div>
+
+    <div class="glass">
+        <div class="liquid">
+            <div class="head"></div>
+        </div>
+    </div>
+
+    <div class="text-block">
+        <h1 class="headline neon-text">
+            Good things come<br>to those who wait
+        </h1>
+        <p class="loading-copy dots">
+            Loading Inscriptions <span>.</span><span>.</span><span>.</span>
+        </p>
+    </div>
+
+</body>
+</html>

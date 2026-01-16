@@ -1,0 +1,153 @@
+# Core Index (generated)
+
+Source: assets/core/index.js
+Bytes: 1077711
+Lines: 482
+
+## App anchors (functions/classes/consts)
+- line 84: computeMerkleRoot (function)
+- line 84: contractPrincipalCVFromAddress (function)
+- line 84: hashChunk (function)
+- line 84: serializeContractPrincipalCV (function)
+- line 94: chunkFile (function)
+- line 94: currentFileMeta (const/let)
+- line 94: journeyLog (const/let)
+- line 94: processRecursiveAudio (function)
+- line 94: renderMintFileStats (const/let)
+- line 94: setAuthStatus (const/let)
+- line 99: royalty (const/let)
+- line 148: clearMintFilePreview (const/let)
+- line 149: previewEl (const/let)
+- line 154: buildBatchJobs (const/let)
+- line 155: batches (const/let)
+- line 164: getMerkleProof (const/let)
+- line 190: getSelectedChunkSize (const/let)
+- line 190: guessMimeTypeFromName (function)
+- line 190: maybeApplyBatchFeeDefault (function)
+- line 235: handleSelectedFile (function)
+- line 248: authMonitorInterval (const/let)
+- line 248: ensureAuth (const/let)
+- line 248: getAuthMonitorSnapshot (function)
+- line 248: initAuthAndUI (function)
+- line 248: openContractCallWrapper (function)
+- line 248: startAuthMonitor (function)
+- line 248: stopAuthMonitor (function)
+- line 248: waitForSequentialUploadConfirmation (function)
+- line 259: findInscriptionIdByRoot (function)
+- line 259: findLatestInscriptionId (function)
+- line 259: getInscriptionMetaById (function)
+- line 259: getLastInscriptionId (function)
+- line 259: scanMissingChunks (function)
+- line 259: viewLatestInscription (function)
+- line 259: waitForSealSuccessWithFallback (function)
+- line 285: royaltySchedule (const/let) (x2)
+- line 318: sealInscriptionTransaction (function)
+- line 325: sealArgs (const/let)
+- line 335: renderSealLookupUI (function)
+- line 335: retryCount (const/let)
+- line 335: seRoyalty (const/let)
+- line 335: startChunkUploads (function)
+- line 346: playerLog (function)
+- line 366: getCacheKey (function)
+- line 368: loadFromCache (function)
+- line 391: saveToCache (function)
+- line 403: chunks (const/let)
+- line 403: chunkSize (const/let)
+- line 403: fetchAllChunks (const/let)
+- line 403: fetchInscriptionData (function)
+- line 403: fetchInscriptionMeta (function)
+- line 403: inscriptionMetaCache (const/let)
+- line 403: maybeAutoLoadLatestInscription (function)
+- line 403: renderGalleryPage (function)
+- line 403: setGallerySelected (function)
+- line 403: setGalleryStatus (function)
+- line 403: sniffMimeType (function)
+- line 403: VIEWER_PAGE_SIZE (const/let)
+- line 403: viewerGalleryPage (const/let)
+
+## DOM IDs referenced in core
+- line 94: auth-status
+- line 94: batch-size-note
+- line 94: batch-size-select (x3)
+- line 94: fee-estimates
+- line 94: journey-log (x4)
+- line 94: journey-log-clear
+- line 94: journey-log-controls (x2)
+- line 94: journey-log-copy
+- line 94: mint-guidance
+- line 94: toggle-auth-debug
+- line 94: toggle-safe-mode (x2)
+- line 95: mint-file-stats (x2)
+- line 149: mint-file-preview
+- line 190: chunk-size-select (x2)
+- line 244: btn-start-mint (x4)
+- line 244: mint-steps (x5)
+- line 248: address-display (x2)
+- line 248: btn-deploy-contract
+- line 248: btn-deploy-contract-batch
+- line 248: btn-deploy-contract-batchx
+- line 248: btn-deploy-contract-batchxr
+- line 248: btn-deploy-contract-batchxrv3
+- line 248: btn-deploy-contract-batchxrv9
+- line 248: btn-deploy-contract-batchxrv9-2
+- line 248: btn-deploy-contract-batchxrv9-2-2
+- line 248: btn-deploy-contract-batchxrv9-2-3
+- line 248: btn-deploy-contract-batchxrv9-2-5
+- line 248: btn-deploy-contract-batchxrv9-2-6
+- line 248: btn-deploy-contract-batchxrv9-2-7
+- line 248: btn-deploy-contract-batchxrv9-2-8
+- line 248: btn-dump-auth
+- line 248: btn-fetch-fee-rate
+- line 248: btn-reset-wallet
+- line 248: btn-toggle-monitor
+- line 248: btn-wallet-toggle (x2)
+- line 248: connect-wallet (x3)
+- line 248: contract-mode-select (x2)
+- line 248: disconnect-wallet (x3)
+- line 248: drop-zone
+- line 248: file-input
+- line 248: page-play
+- line 248: top-contract-select (x2)
+- line 248: wallet-details
+- line 248: wallet-summary
+- line 259: btn-play-single (x7)
+- line 259: manifest-id-input (x9)
+- line 318: btn-resume-mint
+- line 330: seal-lookup-status (x3)
+- line 330: seal-lookup-view (x3)
+- line 346: player-log (x3)
+- line 403: btn-clear-viewer
+- line 403: gallery-grid (x2)
+- line 403: gallery-next
+- line 403: gallery-page-input (x2)
+- line 403: gallery-prev
+- line 403: gallery-status
+- line 403: media-content (x2)
+- line 404: btn-next-id
+- line 404: btn-prev-id
+- line 404: gallery-go
+- line 404: gallery-jump
+- line 404: gallery-jump-id
+- line 404: gallery-refresh
+- line 406: btn-load-manifest
+
+## localStorage keys referenced in core
+- line 94: fee-rate:mainnetSource (x2)
+- line 94: STX_PROVIDER (x2)
+- line 248: fee-rate:current (x2)
+- line 248: fee-rate:lastFetch (x2)
+- line 248: fee-rate:mainnet (x2)
+- line 259: last-inscription-id
+
+## Contract functionName calls
+- line 206: get-upload-state
+- line 222: get-pending-inscription
+- line 259: get-pending-chunk
+- line 286: begin-inscription
+- line 330: seal-inscription
+- line 346: add-chunk
+- line 346: add-chunk-batch
+- line 403: get-chunk
+- line 418: get-token-uri
+
+Generated by tools/generate-core-index.js

@@ -1,0 +1,175 @@
+#!/usr/bin/env node
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+
+const inputPath = process.argv[2] || "index.html";
+const outputPath = process.argv[3] || path.join("docs", "maps", "index-map.md");
+
+if (!fs.existsSync(inputPath)) {
+  console.error(`Input not found: ${inputPath}`);
+  process.exit(1);
+}
+
+const text = fs.readFileSync(inputPath, "utf8");
+const lines = text.split(/\r?\n/);
+const stats = fs.statSync(inputPath);
+
+const ids = new Map();
+const headings = [];
+const inputs = [];
+const buttons = [];
+const handlers = [];
+const pages = [];
+
+function addWithCount(map, key, value) {
+  if (map.has(key)) {
+    const existing = map.get(key);
+    existing.count += 1;
+    return;
+  }
+  map.set(key, { ...value, count: 1 });
+}
+
+function cleanText(value) {
+  if (!value) return "";
+  const stripped = value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return stripped.length > 80 ? `${stripped.slice(0, 77)}...` : stripped;
+}
+
+function captureAttributes(attrText) {
+  const attrs = {};
+  const attrRe = /\s([a-zA-Z0-9:-]+)\s*=\s*("([^"]*)"|'([^']*)')/g;
+  let match;
+  while ((match = attrRe.exec(attrText)) !== null) {
+    const key = match[1];
+    const value = match[3] || match[4] || "";
+    attrs[key] = value;
+  }
+  return attrs;
+}
+
+for (let i = 0; i < lines.length; i += 1) {
+  const line = lines[i];
+  const lineNo = i + 1;
+
+  const headingMatch = line.match(/<h([1-6])[^>]*>(.*?)<\/h\1>/i);
+  if (headingMatch) {
+    headings.push({
+      line: lineNo,
+      tag: `h${headingMatch[1]}`,
+      text: cleanText(headingMatch[2])
+    });
+  }
+
+  const buttonRe = /<button\b([^>]*)>(.*?)<\/button>/gi;
+  let buttonMatch;
+  while ((buttonMatch = buttonRe.exec(line)) !== null) {
+    const attrs = captureAttributes(buttonMatch[1]);
+    const label = cleanText(buttonMatch[2]);
+    buttons.push({
+      line: lineNo,
+      id: attrs.id || null,
+      text: label || "(no text)",
+      onclick: attrs.onclick || null
+    });
+  }
+
+  const inputRe = /<input\b([^>]*)>/gi;
+  let inputMatch;
+  while ((inputMatch = inputRe.exec(line)) !== null) {
+    const attrs = captureAttributes(inputMatch[1]);
+    inputs.push({
+      line: lineNo,
+      id: attrs.id || null,
+      type: attrs.type || "text",
+      placeholder: attrs.placeholder || null,
+      value: attrs.value || null
+    });
+  }
+
+  const tagRe = /<([a-zA-Z0-9-]+)\b([^>]*)>/g;
+  let tagMatch;
+  while ((tagMatch = tagRe.exec(line)) !== null) {
+    const tag = tagMatch[1].toLowerCase();
+    const attrs = captureAttributes(tagMatch[2]);
+    if (attrs.id) {
+      addWithCount(ids, attrs.id, { line: lineNo, tag });
+      if (attrs.id.startsWith("page-")) {
+        pages.push({ line: lineNo, id: attrs.id, tag });
+      }
+    }
+    Object.keys(attrs).forEach((attr) => {
+      if (attr.startsWith("on")) {
+        handlers.push({
+          line: lineNo,
+          event: attr,
+          handler: attrs[attr],
+          tag,
+          id: attrs.id || null
+        });
+      }
+    });
+  }
+}
+
+function formatList(items, formatter) {
+  if (items.length === 0) return "- (none)\n";
+  return items.map(formatter).join("\n");
+}
+
+const idsSorted = Array.from(ids.entries()).sort((a, b) => a[1].line - b[1].line);
+const pagesSorted = pages.sort((a, b) => a.line - b.line);
+const headingsSorted = headings.sort((a, b) => a.line - b.line);
+const inputsSorted = inputs.sort((a, b) => a.line - b.line);
+const buttonsSorted = buttons.sort((a, b) => a.line - b.line);
+const handlersSorted = handlers.sort((a, b) => a.line - b.line);
+
+const output = [
+  "# index.html Map (generated)",
+  "",
+  `Source: ${inputPath}`,
+  `Bytes: ${stats.size}`,
+  `Lines: ${lines.length}`,
+  "",
+  "## Headings",
+  formatList(headingsSorted, (h) => `- line ${h.line}: ${h.tag} "${h.text}"`),
+  "",
+  "## Page containers",
+  formatList(pagesSorted, (p) => `- line ${p.line}: <${p.tag} id="${p.id}">`),
+  "",
+  "## IDs",
+  formatList(idsSorted, ([id, entry]) => {
+    const count = entry.count > 1 ? ` (x${entry.count})` : "";
+    return `- line ${entry.line}: <${entry.tag} id="${id}">${count}`;
+  }),
+  "",
+  "## Inputs",
+  formatList(inputsSorted, (input) => {
+    const id = input.id ? `#${input.id}` : "(no id)";
+    const placeholder = input.placeholder ? ` placeholder="${input.placeholder}"` : "";
+    const value = input.value ? ` value="${input.value}"` : "";
+    return `- line ${input.line}: ${id} type="${input.type}"${placeholder}${value}`;
+  }),
+  "",
+  "## Buttons",
+  formatList(buttonsSorted, (button) => {
+    const id = button.id ? `#${button.id}` : "(no id)";
+    const onclick = button.onclick ? ` onclick="${button.onclick}"` : "";
+    return `- line ${button.line}: ${id} "${button.text}"${onclick}`;
+  }),
+  "",
+  "## Inline handlers",
+  formatList(handlersSorted, (handler) => {
+    const id = handler.id ? `#${handler.id}` : "(no id)";
+    return `- line ${handler.line}: <${handler.tag} ${id}> ${handler.event}="${handler.handler}"`;
+  }),
+  "",
+  "Generated by tools/generate-index-map.js"
+].join("\n");
+
+fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+fs.writeFileSync(outputPath, output, "utf8");
+
+console.log(`Wrote ${outputPath}`);

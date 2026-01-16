@@ -72,8 +72,8 @@ plan:
     - id: 1
       transactions:
         - emulated-contract-publish:
-            contract-name: u64bxr-v11-2
+            contract-name: svg-registry
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/u64bxr-v11.2.clar
+            path: contracts/svg-registry.clar
             clarity-version: 4
       epoch: "3.3"

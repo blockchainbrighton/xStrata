@@ -13,8 +13,8 @@ epoch = 2.5
 
 
 # Add every other contract so Clarinet checks them too
-[contracts.u64bxr-v11-2]
-path = 'contracts/u64bxr-v11.2.clar'
+[contracts.svg-registry]
+path = 'contracts/svg-registry.clar'
 clarity_version = 4
 epoch = 'latest'
 
