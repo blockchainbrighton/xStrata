@@ -1,0 +1,111 @@
+Here is a breakdown of potential upgrades, answering your specific questions and proposing higher-impact
+  architectural changes.
+
+  ---
+
+  1. Local Storage State Persistence (The "Auto-Resume" Feature)
+  User Question: Can we use local storage to keep tabs on chunk states... so we can offer an auto-resume process?
+
+  Verdict: YES. This is the highest value/lowest effort upgrade.
+
+  How it would work:
+   1. Save State: Whenever startChunkUploads successfully confirms a chunk (or sends it), save an object to
+      localStorage:
+
+   1     "pending_mint_0x123...": {
+   2         "fileName": "art.png",
+   3         "totalChunks": 50,
+   4         "uploadedIndices": [0, 1, 2, ...],
+   5         "lastUpdated": 1700000000
+   6     }
+   2. Detection: On page load (in initAuthAndUI), scan localStorage for keys starting with pending_mint_.
+   3. UI: Display a "Unfinished Jobs" widget.
+       * Example: "You have an unfinished upload for 'art.png'. 15/50 chunks sent. [Resume]"
+   4. Reconciliation: When "Resume" is clicked, don't blindly trust local storage.
+       * Call get-pending-inscription on-chain.
+       * Call get-chunk for the indices we think are missing to verify they are actually missing on-chain.
+       * Update the local map and start the loop.
+
+  Benefit: If the browser crashes, the tab is closed, or the user rage-quits, they can come back later and finish
+  without re-selecting the file or remembering where they left off.
+
+  ---
+
+  2. Nonce Pipelining (Optimized "Fast Mode")
+  User Question: Do we apply nonce pipelining when safe mode is on?
+
+  Verdict: Partially.
+
+   * Safe Mode (Current): By definition, "Safe Mode" waits for anchor block confirmation. You cannot pipeline
+     here because you are deliberately waiting for the chain to finalize.
+   * Fast Mode (Pipelining): This is where we can improve. Currently, we wait 3 seconds.
+       * The Upgrade: Instead of waiting 3s and hoping the wallet updates, we can manage the Nonce manually.
+       * Logic:
+           1. Fetch the account nonce once from the API (n).
+           2. Loop through chunks.
+           3. Send Chunk 1 with nonce n.
+           4. Send Chunk 2 with nonce n+1.
+           5. Send Chunk 3 with nonce n+2.
+       * Benefit: We could potentially fire popup requests as fast as the user can click, removing the 3s delay
+         entirely.
+       * Risk: If the user rejects one transaction in the middle, all subsequent transactions (with higher
+         nonces) will fail or get stuck in the mempool until the gap is filled. This requires complex error
+         handling.
+
+  ---
+
+  3. The "Game Changer": Batching (Multi-Chunk Uploads)
+  Recommendation: This is the single most important performance upgrade.
+
+  Currently, 1 chunk = 1 transaction = 1 popup.
+  If you have a 100KB file (approx 7 chunks), the user clicks 7 times.
+
+  The Upgrade:
+  Modify the Smart Contract to accept a List of chunks.
+  define-public (add-chunks-batch (hash (buff 32)) (indices (list 20 uint)) (data (list 20 (buff 16384))))
+
+  Impact:
+   * You can bundle 10 to 20 chunks into a single transaction.
+   * Popups: Reduced by 10x-20x. A 100KB file becomes 1 click.
+   * Cost: Cheaper (you pay the base transaction fee once for 20 chunks, rather than 20 times).
+   * Speed: 20x faster.
+
+  Implementation Plan:
+   1. Update Clarity contract to add add-chunks-batch.
+   2. Update frontend to slice the currentChunks array into batches (e.g., groups of 10).
+   3. The loop iterates over batches instead of single chunks.
+
+  ---
+
+  4. Compression (GZIP/Brotli)
+  Recommendation: Implementing client-side compression.
+
+  How it works:
+   1. User selects image.png (1MB).
+   2. JS uses CompressionStream (native browser API) to gzip it.
+   3. Resulting file is image.png.gz (e.g., 600KB).
+   4. Inscribe the compressed bytes.
+   5. Set mime-type to image/png; content-encoding=gzip.
+
+  Benefit:
+   * Reduces costs and clicks by 30-50%.
+   * The "Player" needs to be updated to decompress before rendering (easy with standard JS libs).
+
+  ---
+
+  5. Mempool Awareness (RBF / Stucks Txs)
+  Problem: Sometimes a transaction gets sent but never confirms because fees spiked.
+  Upgrade:
+   * Monitor the mempool.
+   * If a chunk tx is pending for >10 mins, offer a "Boost Fee" button.
+   * This uses "Replace-By-Fee" (RBF) to re-send the same transaction (same nonce) with a higher fee.
+
+  ---
+
+  Summary of Proposed Roadmap
+
+   1. Immediate (Low Effort): Implement Local Storage Auto-Resume. This fixes the "I lost my progress" anxiety.
+   2. Short Term (High Impact): Implement Smart Contract Batching. This solves the "Too many clicks" problem.
+   3. Medium Term: Implement Manual Nonce Management to remove the 3s delay in Fast Mode.
+
+

@@ -1,0 +1,202 @@
+# index.html Map (generated)
+
+Source: index.html
+Bytes: 28783
+Lines: 520
+
+## Headings
+- line 251: h1 "Phase-1 Inscription Proto"
+- line 255: h3 "Configuration"
+- line 346: h2 "Deploy Smart Contract"
+- line 367: h2 "Inscribe File"
+- line 433: h3 "Resume / Retry Inscription"
+- line 473: h2 "Universal Viewer"
+- line 498: h3 "Journey Log (Debug)"
+
+## Page containers
+- line 345: <div id="page-deploy">
+- line 366: <div id="page-mint">
+- line 442: <div id="page-play">
+
+## IDs
+- line 225: <div id="contract-status-bar">
+- line 228: <select id="top-contract-select">
+- line 244: <strong id="active-contract-name">
+- line 246: <span id="active-contract-status">
+- line 248: <div id="contract-mode-help">
+- line 257: <select id="contract-mode-select">
+- line 274: <input id="contract-address-input">
+- line 276: <input id="contract-address-batch-input">
+- line 278: <input id="contract-address-batchx-input">
+- line 280: <input id="contract-address-batchxr-input">
+- line 282: <input id="contract-address-batchxrv3-input">
+- line 284: <input id="contract-address-batchxrv9-input">
+- line 286: <input id="contract-address-batchxrv9-2-input">
+- line 288: <input id="contract-address-batchxrv9-2-2-input">
+- line 290: <input id="contract-address-batchxrv9-2-3-input">
+- line 292: <input id="contract-address-batchxrv9-2-5-input">
+- line 294: <input id="contract-address-batchxrv9-2-6-input">
+- line 296: <input id="contract-address-batchxrv9-2-7-input">
+- line 298: <input id="contract-address-batchxrv9-2-8-input">
+- line 300: <input id="contract-address-batchxrv9-2-9-input">
+- line 302: <input id="contract-address-svg-registry-input">
+- line 304: <input id="contract-address-svg-registry-v2-input">
+- line 308: <div id="wallet-section">
+- line 311: <button id="connect-wallet">
+- line 312: <span id="address-display">
+- line 313: <span id="wallet-summary">
+- line 315: <button id="btn-wallet-toggle">
+- line 318: <div id="wallet-details">
+- line 319: <button id="disconnect-wallet">
+- line 320: <div id="auth-status">
+- line 328: <input id="toggle-auth-debug">
+- line 331: <button id="btn-dump-auth">
+- line 332: <button id="btn-reset-wallet">
+- line 333: <button id="btn-toggle-monitor">
+- line 334: <button id="btn-debug-uri">
+- line 345: <div id="page-deploy">
+- line 348: <button id="btn-deploy-contract">
+- line 349: <button id="btn-deploy-contract-batch">
+- line 350: <button id="btn-deploy-contract-batchx">
+- line 351: <button id="btn-deploy-contract-batchxr">
+- line 352: <button id="btn-deploy-contract-batchxrv3">
+- line 353: <button id="btn-deploy-contract-batchxrv9">
+- line 354: <button id="btn-deploy-contract-batchxrv9-2">
+- line 355: <button id="btn-deploy-contract-batchxrv9-2-2">
+- line 356: <button id="btn-deploy-contract-batchxrv9-2-3">
+- line 357: <button id="btn-deploy-contract-batchxrv9-2-5">
+- line 358: <button id="btn-deploy-contract-batchxrv9-2-6">
+- line 359: <button id="btn-deploy-contract-batchxrv9-2-7">
+- line 360: <button id="btn-deploy-contract-batchxrv9-2-8">
+- line 361: <button id="btn-deploy-contract-batchxrv9-2-9">
+- line 362: <button id="btn-deploy-contract-svg-registry">
+- line 363: <button id="btn-deploy-contract-svg-registry-v2">
+- line 366: <div id="page-mint">
+- line 372: <select id="chunk-size-select">
+- line 381: <select id="batch-size-select">
+- line 396: <span id="batch-size-note">
+- line 399: <div id="drop-zone">
+- line 401: <input id="file-input">
+- line 403: <div id="mint-file-panel">
+- line 406: <div id="mint-file-preview">
+- line 410: <div id="mint-file-stats">
+- line 413: <div id="mint-guidance">
+- line 417: <input id="fee-per-tx">
+- line 420: <input id="toggle-safe-mode">
+- line 423: <button id="btn-fetch-fee-rate">
+- line 425: <div id="fee-estimates">
+- line 426: <div id="mint-progress">
+- line 427: <div id="mint-steps">
+- line 428: <button id="btn-start-mint">
+- line 436: <input id="resume-id-input">
+- line 437: <button id="btn-resume-mint">
+- line 439: <div id="resume-status">
+- line 442: <div id="page-play">
+- line 448: <div id="gallery-status">
+- line 450: <button id="gallery-prev">
+- line 451: <button id="gallery-next">
+- line 454: <button id="btn-prev-id">
+- line 455: <button id="btn-next-id">
+- line 459: <input id="gallery-page-input">
+- line 460: <button id="gallery-go">
+- line 461: <button id="gallery-refresh">
+- line 464: <input id="gallery-jump-id">
+- line 465: <button id="gallery-jump">
+- line 468: <div id="gallery-grid">
+- line 475: <input id="manifest-id-input">
+- line 476: <button id="btn-play-single">
+- line 479: <button id="btn-load-manifest">
+- line 480: <button id="btn-clear-viewer">
+- line 483: <div id="media-container">
+- line 484: <div id="media-content">
+- line 487: <div id="loading-overlay">
+- line 491: <div id="player-log">
+- line 499: <div id="journey-log-controls">
+- line 510: <button id="journey-log-copy">
+- line 511: <button id="journey-log-clear">
+- line 513: <div id="journey-log">
+
+## Inputs
+- line 274: #contract-address-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64"
+- line 276: #contract-address-batch-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64b"
+- line 278: #contract-address-batchx-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bx"
+- line 280: #contract-address-batchxr-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v7"
+- line 282: #contract-address-batchxrv3-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v7"
+- line 284: #contract-address-batchxrv9-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9"
+- line 286: #contract-address-batchxrv9-2-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2"
+- line 288: #contract-address-batchxrv9-2-2-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2-2"
+- line 290: #contract-address-batchxrv9-2-3-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2-3"
+- line 292: #contract-address-batchxrv9-2-5-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2-5"
+- line 294: #contract-address-batchxrv9-2-6-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2-6"
+- line 296: #contract-address-batchxrv9-2-7-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2-7"
+- line 298: #contract-address-batchxrv9-2-8-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2-8"
+- line 300: #contract-address-batchxrv9-2-9-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.u64bxr-v9-2-9"
+- line 302: #contract-address-svg-registry-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.svg-registry"
+- line 304: #contract-address-svg-registry-v2-input type="text" value="ST10W2EEM757922QTVDZZ5CSEW55JEFNN33V2E7YA.svg-registry-v2"
+- line 328: #toggle-auth-debug type="checkbox"
+- line 401: #file-input type="file"
+- line 417: #fee-per-tx type="number" value="0"
+- line 420: #toggle-safe-mode type="checkbox"
+- line 436: #resume-id-input type="number" placeholder="ID (e.g. 7)"
+- line 459: #gallery-page-input type="number" value="0"
+- line 464: #gallery-jump-id type="number" placeholder="Jump to ID"
+- line 475: #manifest-id-input type="number" placeholder="Inscription ID (e.g. 1)"
+
+## Buttons
+- line 311: #connect-wallet "Connect Wallet"
+- line 315: #btn-wallet-toggle "Details ▼"
+- line 319: #disconnect-wallet "Disconnect"
+- line 331: #btn-dump-auth "Dump Auth Debug"
+- line 332: #btn-reset-wallet "Reset Wallet Selection"
+- line 333: #btn-toggle-monitor "Start Auth Monitor"
+- line 334: #btn-debug-uri "Debug Token URI" onclick="debugTokenUri()"
+- line 339: (no id) "Deploy Contract" onclick="showPage('deploy')"
+- line 340: (no id) "Mint Mode" onclick="showPage('mint')"
+- line 341: (no id) "Inscription Viewer" onclick="showPage('play')"
+- line 348: #btn-deploy-contract "Deployed 'u64' (legacy)"
+- line 349: #btn-deploy-contract-batch "Deployed 'u64b' (batch)"
+- line 350: #btn-deploy-contract-batchx "Deployed 'u64bx' (batchx)"
+- line 351: #btn-deploy-contract-batchxr "Deployed 'u64bxr' (batchxr)"
+- line 352: #btn-deploy-contract-batchxrv3 "Deployed Registry Contract (v7.0)"
+- line 353: #btn-deploy-contract-batchxrv9 "Deployed Registry Contract (v9.0)"
+- line 354: #btn-deploy-contract-batchxrv9-2 "Deployed Registry Contract (v9.2)"
+- line 355: #btn-deploy-contract-batchxrv9-2-2 "Deployed Registry Contract (v9.2.2)"
+- line 356: #btn-deploy-contract-batchxrv9-2-3 "Deployed Registry Contract (v9.2.3)"
+- line 357: #btn-deploy-contract-batchxrv9-2-5 "Deployed Registry Contract (v9.2.5)"
+- line 358: #btn-deploy-contract-batchxrv9-2-6 "Deployed Registry Contract (v9.2.6)"
+- line 359: #btn-deploy-contract-batchxrv9-2-7 "Deployed Registry Contract (v9.2.7)"
+- line 360: #btn-deploy-contract-batchxrv9-2-8 "Deploy Registry Contract (v9.2.8)"
+- line 361: #btn-deploy-contract-batchxrv9-2-9 "Deploy Registry Contract (v9.2.9)"
+- line 362: #btn-deploy-contract-svg-registry "Deploy SVG Registry Contract (svg-registry)"
+- line 363: #btn-deploy-contract-svg-registry-v2 "Deploy SVG Registry v2 Contract (svg-registry-v2)"
+- line 423: #btn-fetch-fee-rate "Fetch Fee Rates"
+- line 428: #btn-start-mint "Begin Inscription"
+- line 437: #btn-resume-mint "Check & Resume"
+- line 450: #gallery-prev "&lt; Page"
+- line 451: #gallery-next "Page &gt;"
+- line 454: #btn-prev-id "&lt; ID"
+- line 455: #btn-next-id "ID &gt;"
+- line 460: #gallery-go "Go"
+- line 461: #gallery-refresh "↻"
+- line 465: #gallery-jump "Jump"
+- line 476: #btn-play-single "Load & View"
+- line 479: #btn-load-manifest "Load Manifest (JSON)"
+- line 480: #btn-clear-viewer "Clear"
+- line 501: (no id) "All"
+- line 502: (no id) "Chain"
+- line 503: (no id) "Process"
+- line 504: (no id) "Auth"
+- line 505: (no id) "Wallet"
+- line 506: (no id) "Errors"
+- line 507: (no id) "Viewer"
+- line 508: (no id) "App"
+- line 510: #journey-log-copy "Copy Visible"
+- line 511: #journey-log-clear "Clear"
+
+## Inline handlers
+- line 334: <button #btn-debug-uri> onclick="debugTokenUri()"
+- line 339: <button (no id)> onclick="showPage('deploy')"
+- line 340: <button (no id)> onclick="showPage('mint')"
+- line 341: <button (no id)> onclick="showPage('play')"
+
+Generated by tools/generate-index-map.js
